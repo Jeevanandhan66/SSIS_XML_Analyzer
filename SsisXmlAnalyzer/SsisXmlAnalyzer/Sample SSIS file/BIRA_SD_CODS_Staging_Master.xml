@@ -1,0 +1,2443 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CheckpointFileName="\\USIDCVSSIS0005\ssis\bira\Test\Checkpoint_File"
+  DTS:CreationDate="2/25/2020 3:47:00 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName=""
+  DTS:CreatorName="BIRA"
+  DTS:DelayValidation="True"
+  DTS:DTSID="{C8664485-1618-4210-AF27-D9C6B2E3028A}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="13.0.4561.14"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="BIRA_SD_CODS_Staging_Master"
+  DTS:PackageType="5"
+  DTS:ProtectionLevel="0"
+  DTS:VersionBuild="525"
+  DTS:VersionGUID="{B5B7399E-A90C-4D64-BCF1-5932564AD424}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F27BC26D-C8E2-4C2E-ACFA-0A8AC1EEB99C}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="Result">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{C9339314-6CD5-48D2-A5DB-4A00C96553AF}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vAgentJobID">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{50E64A79-E975-4FB0-BCAC-83D6AE3FF3B7}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vAgentJobName">
+      <DTS:VariableValue
+        DTS:DataType="8">Manual Run</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{78368C09-BEAA-4C4C-9240-E9FF9B332B01}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vDTSXPath">
+      <DTS:VariableValue
+        DTS:DataType="8">C:\TFS\BIRA - CTL Account\Production\Service Delivery\SD_SSIS_Packages\</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{5516D21F-7B3E-4491-99BE-BBE3FBC2A29C}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[System::PackageName]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vPackageNameForChildren">
+      <DTS:VariableValue
+        DTS:DataType="8">BIRA_SD_CODS_Staging_Master</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{A445FAAC-EC45-45BE-B305-C0D1E5D3370F}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[System::PackageName]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vProcessName">
+      <DTS:VariableValue
+        DTS:DataType="8">BIRA_SD_CODS_Staging_Master</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:LoggingOptions
+    DTS:FilterKind="0"
+    DTS:LoggingMode="1">
+    <DTS:Property
+      DTS:DataType="8"
+      DTS:Name="EventFilter">7,22,PipelineInitialization,18,OnPipelineRowsSent,24,OnPipelinePrePrimeOutput,25,OnPipelinePostPrimeOutput,24,OnPipelinePreEndOfRowset,25,OnPipelinePostEndOfRowset,7,OnError</DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnError"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePostEndOfRowset"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePostPrimeOutput"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePreEndOfRowset"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePrePrimeOutput"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelineRowsSent"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="PipelineInitialization"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+  </DTS:LoggingOptions>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\SEQC -  CODS Order contacts"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{7F595A7C-732D-439B-8F3F-7272313B7FB5}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC -  CODS Order contacts">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{65C791E9-8F30-4E95-8E0B-3607F8B908DA}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods.order_contacts</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{FDAA425F-F070-4EC0-9A21-BF7F4CBF90AE}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Merge"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- Order Contacts Merge"
+          DTS:DTSID="{44CDADED-B15A-43F9-B58C-F88E5AB29092}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- Order Contacts Merge"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsOrderContacts_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Stage"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- Order Contacts Stage"
+          DTS:DTSID="{A170B684-3A5F-4238-9187-A709E3F5698D}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- Order Contacts Stage"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsOrderContacts_STG.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC -  CODS Order contacts\SQL - Check Job Run Status (CODS|ORDER_CONTACTS)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{BA0C5ED2-21E9-4457-994E-3F79900DEB58}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (CODS|ORDER_CONTACTS)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA;&#x9;AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC -  CODS Order contacts\SQL - Insert Completion Flag (CODS|ORDER_CONTACTS)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{E2C7E4BF-5339-418A-8A0F-E48D11FC30B7}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (CODS|ORDER_CONTACTS)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;&#x9;    (job_name&#xA;&#x9;&#x9;,run_date&#xA;&#x9;&#x9;,date_loaded)&#xA;VALUES &#xA;        (?&#xA;&#x9;&#x9;,getdate()&#xA;&#x9;&#x9;,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{CAFCBF6A-FDD3-4730-93EE-BBA813EE34B1}"
+          DTS:From="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Stage"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Merge" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{2856DD80-84A4-4BEF-9EBC-474A132B8B28}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC -  CODS Order contacts\SQL - Check Job Run Status (CODS|ORDER_CONTACTS)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Stage" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{5C36A926-7876-464B-ABB6-75EE24F75638}"
+          DTS:From="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Merge"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC -  CODS Order contacts\SQL - Insert Completion Flag (CODS|ORDER_CONTACTS)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQC - CODS Customer"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{DCA381AA-7C5D-4DA2-8C47-A6351B4DD68B}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC - CODS Customer">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{63ED42B4-9CB9-4E32-9B16-6AF3159BEB0E}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods_customer</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{8586303C-0426-44D9-960A-5466333150C2}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer\EPT - CODS Customer (STAGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT - CODS Customer (STAGE)"
+          DTS:DTSID="{1726D75A-8697-4D6B-9669-5BFBB90DFB59}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT - CODS Customer (STAGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsCustomers_STAGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer\EPT- CODS Customer  (MERGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Customer (MERGE)"
+          DTS:DTSID="{2860F039-E6AC-4290-B0EF-5B02A6750A92}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Customer  (MERGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsCustomers_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer\SQL - Check Job Run Status (cods_customer)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{1BC176D8-599A-476D-A2C9-BF5EDDF195C0}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (cods_customer)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA; AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer\SQL - Insert Completion Flag (cods_customer)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{784009C4-F17D-4B0E-B572-9258CB606C49}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (cods_customer)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;     (job_name&#xA;  ,run_date&#xA;  ,date_loaded)&#xA;VALUES &#xA;        (?&#xA;  ,getdate()&#xA;  ,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{B8BC62DC-9327-453F-BF93-2E75019B81A6}"
+          DTS:From="Package\SEQC - CODS Customer\EPT - CODS Customer (STAGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC - CODS Customer\EPT- CODS Customer  (MERGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{A468528B-5674-482E-A60D-6F4BD388EB11}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC - CODS Customer\SQL - Check Job Run Status (cods_customer)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC - CODS Customer\EPT - CODS Customer (STAGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{C681C478-ABFB-4B84-A3EE-CCEE5A48B03E}"
+          DTS:From="Package\SEQC - CODS Customer\EPT- CODS Customer  (MERGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC - CODS Customer\SQL - Insert Completion Flag (cods_customer)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQC - CODS Customer Orders"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="SEQC - CODS Customer Orders"
+      DTS:DTSID="{5E89AEC5-F417-4037-AD21-933AB51BF4A5}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC - CODS Customer Orders">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{58049C07-8E1C-4392-9C41-5EBE2555EA4D}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods_customer_order</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{DD9C6EF7-857A-4F1C-907E-351DE4790AD1}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer Orders\EPT - CODS CUSTOMER ORDER (STAGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT - CODS CUSTOMER ORDER (STAGE)"
+          DTS:DTSID="{921528B3-461F-43CC-9376-38A85401DEC1}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT - CODS CUSTOMER ORDER (STAGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsCustomerOrder_STAGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer Orders\EPT- CODS Customer Order (MERGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Customer Order (MERGE)"
+          DTS:DTSID="{7748F03C-37AD-4DE2-BF22-DF8E005D4DFC}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Customer Order (MERGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsCustomerOrder_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer Orders\SQL - Check Job Run Status (cods_customer_order)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{A20782F2-66CE-4E43-8207-2167691865F5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (cods_customer_order)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="2">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA; AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Customer Orders\SQL - Insert Completion Flag (cods_customer_order)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{6CC1458A-8D88-43F0-B0F0-2DFABD35BDD0}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (cods_customer_order)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="2">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;     (job_name&#xA;  ,run_date&#xA;  ,date_loaded)&#xA;VALUES &#xA;        (?&#xA;  ,getdate()&#xA;  ,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{AAAD96E7-6B5F-4126-8427-FBE62AB2C1A2}"
+          DTS:From="Package\SEQC - CODS Customer Orders\EPT - CODS CUSTOMER ORDER (STAGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC - CODS Customer Orders\EPT- CODS Customer Order (MERGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{256225C5-7777-4685-991D-13DD1409A517}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC - CODS Customer Orders\SQL - Check Job Run Status (cods_customer_order)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC - CODS Customer Orders\EPT - CODS CUSTOMER ORDER (STAGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{4E855E06-3453-4C67-9436-96300C6A5DC5}"
+          DTS:From="Package\SEQC - CODS Customer Orders\EPT- CODS Customer Order (MERGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC - CODS Customer Orders\SQL - Insert Completion Flag (cods_customer_order)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQC - CODS Order Account Team"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{275AF831-99CB-4F2A-B09E-13E364F8A7BD}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC - CODS Order Account Team">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{0736AB26-5BFB-4F4B-9808-53BB0A0F2165}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods_order_account_team</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{A1EECD7A-0C00-49DB-9ACF-729F14E60F3D}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Order Account Team\EPT- CODS Order Account Team (MERGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Order Account Team (MERGE)"
+          DTS:DTSID="{0735E2F0-A9D6-4F57-8343-01632DEDA794}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Order Account Team (MERGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsOrderAccountTeam_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Order Account Team\EPT- CODS Order account Team (STAGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Order account Team (STAGE)"
+          DTS:DTSID="{0E0A287D-0D9A-471C-A718-E423F1B95A8D}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Order account Team (STAGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsOrderAccountTeam_STG.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Order Account Team\SQL - Check Job Run Status (cods_order_account_team)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{2F4B2DCB-2188-4CEE-96BE-D1D942D7EEC9}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (cods_order_account_team)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="3">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA; AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Order Account Team\SQL - Insert Completion Flag (cods_order_account_team)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{19DFB7A7-E77C-484B-AA4E-2B00521A37A5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (cods_order_account_team)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="3">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;     (job_name&#xA;  ,run_date&#xA;  ,date_loaded)&#xA;VALUES &#xA;        (?&#xA;  ,getdate()&#xA;  ,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{207D9812-0CA6-4863-B05B-64E8A8901112}"
+          DTS:From="Package\SEQC - CODS Order Account Team\EPT- CODS Order account Team (STAGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC - CODS Order Account Team\EPT- CODS Order Account Team (MERGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{9E1838F0-5067-4A72-8AFF-5FADA403FE90}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC - CODS Order Account Team\SQL - Check Job Run Status (cods_order_account_team)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC - CODS Order Account Team\EPT- CODS Order account Team (STAGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{861E70F4-212A-471C-B790-9C93BD1F2FFC}"
+          DTS:From="Package\SEQC - CODS Order Account Team\EPT- CODS Order Account Team (MERGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC - CODS Order Account Team\SQL - Insert Completion Flag (cods_order_account_team)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQC - CODS Quote Product"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{A552AC19-0AD3-4880-997F-4FA13684CA61}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC - CODS Quote Product">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{A975101F-2707-494D-8DF0-3AAA91145F0F}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods_quote_product</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{4B558B42-5116-4C56-9572-F7B9B85986F3}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote Product\EPT - CODS QUOTE PRODUCT (STAGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT - CODS QUOTE PRODUCT (STAGE)"
+          DTS:DTSID="{75A7D35E-5342-4501-94A2-D785C832B733}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT - CODS QUOTE PRODUCT (STAGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsQuoteProduct_STAGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote Product\EPT- CODS Quote Product   (MERGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Quote Product   (MERGE)"
+          DTS:DTSID="{276B8D17-49E2-490F-9667-6E69E1FA1E76}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Quote Product   (MERGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsQuoteProduct_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VPrimaryPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote Product\SQL - Check Job Run Status (cods_quote_product)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{8CBC5008-6241-4ED5-A6E8-5DCF59BDEC60}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (cods_quote_product)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="4">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA; AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote Product\SQL - Insert Completion Flag (cods_quote_product)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{D183E590-0064-434B-A551-3B670BAA8147}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (cods_quote_product)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="4">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;     (job_name&#xA;  ,run_date&#xA;  ,date_loaded)&#xA;VALUES &#xA;        (?&#xA;  ,getdate()&#xA;  ,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{11EB5512-99F0-4EC8-8A5D-11EB6660FC00}"
+          DTS:From="Package\SEQC - CODS Quote Product\EPT - CODS QUOTE PRODUCT (STAGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC - CODS Quote Product\EPT- CODS Quote Product   (MERGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{70BE177D-C99C-4109-9BE8-7B7363E0931B}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC - CODS Quote Product\SQL - Check Job Run Status (cods_quote_product)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC - CODS Quote Product\EPT - CODS QUOTE PRODUCT (STAGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{0C5CCDA1-FC45-4D69-977D-8921F4D0EF55}"
+          DTS:From="Package\SEQC - CODS Quote Product\EPT- CODS Quote Product   (MERGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC - CODS Quote Product\SQL - Insert Completion Flag (cods_quote_product)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQC - CODS Quote QProduct"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="SEQC - CODS Quote QProduct"
+      DTS:DTSID="{43F1BDE9-38F3-40ED-AD1C-E19BD6F56651}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQC - CODS Quote QProduct">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{03EF7C03-129F-4969-A8B0-6E1706A9890A}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vCheckRunStatusJobName">
+          <DTS:VariableValue
+            DTS:DataType="8">cods_quote_qproduct</DTS:VariableValue>
+        </DTS:Variable>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:DTSID="{47261059-77D5-4B4D-8F2D-7B54B5C413FD}"
+          DTS:IncludeInDebugDump="2345"
+          DTS:Namespace="User"
+          DTS:ObjectName="vChkRunStatus">
+          <DTS:VariableValue
+            DTS:DataType="8"
+            xml:space="preserve"></DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote QProduct\EPT - CODS QUOTE QPRODUCT (STAGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT - CODS QUOTE QPRODUCT (STAGE)"
+          DTS:DTSID="{062AB7CC-0033-4CB5-BE72-833B50A31726}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT - CODS QUOTE QPRODUCT (STAGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsQuote_QProduct_STAGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote QProduct\EPT- CODS Quote QProduct   (MERGE)"
+          DTS:CreationName="Microsoft.ExecutePackageTask"
+          DTS:Description="EPT- CODS Quote QProduct   (MERGE)"
+          DTS:DTSID="{83DE9D17-3219-4260-B853-7B380B6EFC36}"
+          DTS:ExecutableType="Microsoft.ExecutePackageTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="EPT- CODS Quote QProduct   (MERGE)"
+          DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <ExecutePackageTask>
+              <UseProjectReference>True</UseProjectReference>
+              <PackageName>BIRA_SD_CodsQuote_QProduct_MERGE.dtsx</PackageName>
+              <ParameterAssignment>
+                <ParameterName>VParentPackageName</ParameterName>
+                <BindedVariableOrParameterName>vPackageNameForChildren</BindedVariableOrParameterName>
+              </ParameterAssignment>
+            </ExecutePackageTask>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote QProduct\SQL - Check Job Run Status (cods_quote_qproduct)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="SQL - Check Job Run Status (cods_quote_qproduct)"
+          DTS:DTSID="{5C6597B3-2FFB-41A7-A266-57B035840EE2}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Check Job Run Status (cods_quote_qproduct)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="5">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="SELECT MAX(job_complete) job_complete FROM (&#xA;SELECT&#xA;    'Y' job_complete&#xA;FROM&#xA;    dbo.job_validation_completion_check jvcc&#xA;WHERE&#xA;    jvcc.job_name = ?&#xA; AND CAST(jvcc.run_date AS DATE) = CAST(getdate() AS DATE)&#xA;UNION &#xA;SELECT 'N' job_complete) dataQ"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="job_complete"
+                SQLTask:DtsVariableName="User::vChkRunStatus" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQC - CODS Quote QProduct\SQL - Insert Completion Flag (cods_quote_qproduct)"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="SQL - Insert Completion Flag (cods_quote_qproduct)"
+          DTS:DTSID="{5C45C7B0-6541-4256-BB71-7BFD0DA6D52D}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Insert Completion Flag (cods_quote_qproduct)"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="5">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="&#xA;INSERT INTO &#xA;    dbo.job_validation_completion_check &#xA;     (job_name&#xA;  ,run_date&#xA;  ,date_loaded)&#xA;VALUES &#xA;        (?&#xA;  ,getdate()&#xA;  ,getdate());" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vCheckRunStatusJobName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{1AB4E5EA-9938-435F-8B09-483FF8B6F0D0}"
+          DTS:From="Package\SEQC - CODS Quote QProduct\EPT - CODS QUOTE QPRODUCT (STAGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\SEQC - CODS Quote QProduct\EPT- CODS Quote QProduct   (MERGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{70133F7A-FB17-4C68-B987-D3DFD9A8C7D0}"
+          DTS:EvalOp="3"
+          DTS:Expression="@[User::vChkRunStatus] == &quot;N&quot;"
+          DTS:From="Package\SEQC - CODS Quote QProduct\SQL - Check Job Run Status (cods_quote_qproduct)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\SEQC - CODS Quote QProduct\EPT - CODS QUOTE QPRODUCT (STAGE)" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint 2]"
+          DTS:CreationName=""
+          DTS:DTSID="{034E2FAC-4D60-4D86-A813-A617996440F9}"
+          DTS:From="Package\SEQC - CODS Quote QProduct\EPT- CODS Quote QProduct   (MERGE)"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 2"
+          DTS:To="Package\SEQC - CODS Quote QProduct\SQL - Insert Completion Flag (cods_quote_qproduct)" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL - Get Job Info"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="SQL - Get Job Info"
+      DTS:DTSID="{99887778-B984-444A-86DE-980A8260B298}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL - Get Job Info"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{118A017F-005F-4BC4-A05E-898F8896CDE9}"
+          SQLTask:SqlStatementSource="DECLARE @JobID VARCHAR(4000) = ?; &#xA;&#xA;DECLARE @JobName  VARCHAR(100); &#xA;&#xA;DECLARE @SQLStatement NVARCHAR(500); &#xA;&#xA;&#xA;IF (LEFT(@JobID,2) = '0x') -- start of the binary representation, so we have a job GUID &#xA;&#xA;       BEGIN &#xA;&#xA;&#xA;  SELECT @SQLStatement =  &#xA;&#xA;  ' &#xA;&#xA;   SELECT @JobNameOUT = [Name] &#xA;&#xA;   FROM msdb.dbo.sysjobs   &#xA;&#xA;   WHERE job_id = CONVERT(UNIQUEIDENTIFIER,' +  @JobID + ');  &#xA;&#xA;  ' &#xA;&#xA;  EXEC sp_executesql @SQLStatement, N'@JobNameOUT VARCHAR(100) OUTPUT', @JobNameOUT = @JobName OUTPUT; &#xA;&#xA;&#xA;  Select @JobName as Job_Name; &#xA;&#xA;       END &#xA;&#xA;ELSE &#xA;&#xA;       BEGIN &#xA;&#xA;   Select 'The package was started manually.' as Job_Name; &#xA;&#xA;END &#xA;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="Job_Name"
+            SQLTask:DtsVariableName="User::vAgentJobName" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::vAgentJobID"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL - Log Job End"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="SQL - Log Job End"
+      DTS:DTSID="{81CB9709-BD4D-48D9-B478-DCA94ED21B8B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL - Log Job End"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+          SQLTask:SqlStatementSource="EXEC dbo.sp_jv_update               &#xA;    @reportname = ?       &#xA;  , @updatetype =1 ;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::vProcessName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL - Log Job Start"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="SQL - Log Job Start"
+      DTS:DTSID="{CF78B006-C61F-4547-A116-34EE2109A00D}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL - Log Job Start"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+          SQLTask:SqlStatementSource="EXEC dbo.sp_jv_update               &#xA;    @reportname = ?    &#xA;  , @updatetype = 0              &#xA;  , @source_server = ?              &#xA;  , @source_job = ? ;&#xA;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::vProcessName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="System::MachineName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::vAgentJobName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{7429A146-D32C-4228-81DF-6EE8A67669A7}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\SEQC -  CODS Order contacts" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint - SQL Log Job Start]"
+      DTS:CreationName=""
+      DTS:DTSID="{0DEDDA14-20B6-40DF-8119-405E43430059}"
+      DTS:From="Package\SQL - Get Job Info"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint - SQL Log Job Start"
+      DTS:To="Package\SQL - Log Job Start" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{5D8F2693-11C2-4687-960A-755998733574}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\SEQC - CODS Order Account Team" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 10]"
+      DTS:CreationName=""
+      DTS:DTSID="{80923298-6DB5-4A9A-8480-B49C51547A4E}"
+      DTS:From="Package\SEQC - CODS Quote QProduct"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 10"
+      DTS:To="Package\SQL - Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 11]"
+      DTS:CreationName=""
+      DTS:DTSID="{BC084848-C2AC-4C5F-A2AA-2025A70663B8}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 11"
+      DTS:To="Package\SEQC - CODS Quote QProduct" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{51FB82DD-E781-43B9-A322-11295A8A0710}"
+      DTS:From="Package\SEQC -  CODS Order contacts"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\SQL - Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{C894B8AD-0B70-49E8-ABFC-110FDC565F0E}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\SEQC - CODS Customer" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{3920E1E6-A9EE-45E9-9685-58AF1D859D39}"
+      DTS:From="Package\SEQC - CODS Order Account Team"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\SQL - Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{C972CC05-DCD8-43ED-8D23-D633BA43C2C7}"
+      DTS:From="Package\SEQC - CODS Customer"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\SQL - Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 6]"
+      DTS:CreationName=""
+      DTS:DTSID="{480A7C52-96AA-4AB2-BBC5-BF9FE2B83458}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 6"
+      DTS:To="Package\SEQC - CODS Quote Product" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 7]"
+      DTS:CreationName=""
+      DTS:DTSID="{35AF0647-58E4-4022-A247-BF9EB9053F60}"
+      DTS:From="Package\SEQC - CODS Quote Product"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 7"
+      DTS:To="Package\SQL - Log Job End" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 8]"
+      DTS:CreationName=""
+      DTS:DTSID="{F1F03BB8-E60D-44B2-9CD0-FCC303786BC5}"
+      DTS:From="Package\SQL - Log Job Start"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 8"
+      DTS:To="Package\SEQC - CODS Customer Orders" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 9]"
+      DTS:CreationName=""
+      DTS:DTSID="{9E5DD138-851D-46EB-BA2A-78B4B6458DDE}"
+      DTS:From="Package\SEQC - CODS Customer Orders"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 9"
+      DTS:To="Package\SQL - Log Job End" />
+  </DTS:PrecedenceConstraints>
+  <DTS:EventHandlers>
+    <DTS:EventHandler
+      DTS:refId="Package.EventHandlers[OnError]"
+      DTS:CreationName="OnError"
+      DTS:Description="SSISOps : DON'T CHANGE PREFIX. "
+      DTS:DTSID="{8C47F7B7-C93A-4B67-8F47-9FB180731126}"
+      DTS:EventID="0"
+      DTS:EventName="OnError"
+      DTS:LocaleID="-1">
+      <DTS:Variables>
+        <DTS:Variable
+          DTS:CreationName=""
+          DTS:Description="The propagate property of the event"
+          DTS:DTSID="{CB3728CD-EAB6-4C76-BBA6-3D51BAEECF5F}"
+          DTS:IncludeInDebugDump="6789"
+          DTS:Namespace="System"
+          DTS:ObjectName="Propagate">
+          <DTS:VariableValue
+            DTS:DataType="11">-1</DTS:VariableValue>
+        </DTS:Variable>
+      </DTS:Variables>
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package.EventHandlers[OnError]\SQL - Log Job Failure"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="SQL - Log Job Failure"
+          DTS:DisableEventHandlers="True"
+          DTS:DTSID="{E6C2A2D7-C0BE-4703-8A00-7682BADDA4D5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL - Log Job Failure"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{542DDBF9-8633-4CEB-B452-B486130224A3}"
+              SQLTask:SqlStatementSource="EXEC dbo.sp_jv_update               &#xA;    @reportname = ?       &#xA;  , @updatetype =1&#xA;  , @iErrorMessage = ?;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="0"
+                SQLTask:DtsVariableName="User::vProcessName"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+              <SQLTask:ParameterBinding
+                SQLTask:ParameterName="1"
+                SQLTask:DtsVariableName="System::ErrorDescription"
+                SQLTask:ParameterDirection="Input"
+                SQLTask:DataType="129"
+                SQLTask:ParameterSize="-1" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:EventHandler>
+  </DTS:EventHandlers>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="128" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph" xmlns:mssge="clr-namespace:Microsoft.SqlServer.Graph.Extended;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:av="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+        <NodeLayout
+          Size="206.666666666667,42"
+          Id="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Merge"
+          TopLeft="77,209.5" />
+        <NodeLayout
+          Size="205.333333333334,42"
+          Id="Package\SEQC -  CODS Order contacts\EPT- Order Contacts Stage"
+          TopLeft="78,107.5" />
+        <NodeLayout
+          Size="345.333333333334,42"
+          Id="Package\SEQC -  CODS Order contacts\SQL - Check Job Run Status (CODS|ORDER_CONTACTS)"
+          TopLeft="8,5.5" />
+        <NodeLayout
+          Size="350,42"
+          Id="Package\SEQC -  CODS Order contacts\SQL - Insert Completion Flag (CODS|ORDER_CONTACTS)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint]"
+          TopLeft="180.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint 1]"
+          TopLeft="180.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint 2]"
+          TopLeft="180.5,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="361.333333333334,409.333333333334"
+          Size="361.333333333334,452"
+          Id="Package\SEQC -  CODS Order contacts"
+          TopLeft="405.5,209.5" />
+        <NodeLayout
+          Size="226,42"
+          Id="Package\SEQC - CODS Customer\EPT - CODS Customer (STAGE)"
+          TopLeft="41,107.5" />
+        <NodeLayout
+          Size="277.333333333334,42"
+          Id="Package\SEQC - CODS Customer\EPT- CODS Customer  (MERGE)"
+          TopLeft="15.5,209.5" />
+        <NodeLayout
+          Size="293.333333333334,42"
+          Id="Package\SEQC - CODS Customer\SQL - Check Job Run Status (cods_customer)"
+          TopLeft="7.5,5.5" />
+        <NodeLayout
+          Size="297.333333333334,42"
+          Id="Package\SEQC - CODS Customer\SQL - Insert Completion Flag (cods_customer)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint]"
+          TopLeft="154,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint 1]"
+          TopLeft="154,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint 2]"
+          TopLeft="154,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="308,409.333333333334"
+          Size="308,452"
+          Id="Package\SEQC - CODS Customer"
+          TopLeft="1250,209.5" />
+        <NodeLayout
+          Size="273.333333333334,42"
+          Id="Package\SEQC - CODS Customer Orders\EPT - CODS CUSTOMER ORDER (STAGE)"
+          TopLeft="33,107.5" />
+        <NodeLayout
+          Size="254.666666666667,42"
+          Id="Package\SEQC - CODS Customer Orders\EPT- CODS Customer Order (MERGE)"
+          TopLeft="42,209.5" />
+        <NodeLayout
+          Size="322.666666666667,42"
+          Id="Package\SEQC - CODS Customer Orders\SQL - Check Job Run Status (cods_customer_order)"
+          TopLeft="8,5.5" />
+        <NodeLayout
+          Size="328,42"
+          Id="Package\SEQC - CODS Customer Orders\SQL - Insert Completion Flag (cods_customer_order)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint]"
+          TopLeft="169.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint 1]"
+          TopLeft="169.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint 2]"
+          TopLeft="169.5,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="338.666666666667,409.333333333334"
+          Size="338.666666666667,452"
+          Id="Package\SEQC - CODS Customer Orders"
+          TopLeft="2012.5,209.5" />
+        <NodeLayout
+          Size="277.333333333334,42"
+          Id="Package\SEQC - CODS Order Account Team\EPT- CODS Order Account Team (MERGE)"
+          TopLeft="42.5,209.5" />
+        <NodeLayout
+          Size="274,42"
+          Id="Package\SEQC - CODS Order Account Team\EPT- CODS Order account Team (STAGE)"
+          TopLeft="44,107.5" />
+        <NodeLayout
+          Size="346,42"
+          Id="Package\SEQC - CODS Order Account Team\SQL - Check Job Run Status (cods_order_account_team)"
+          TopLeft="8,5.5" />
+        <NodeLayout
+          Size="350.666666666667,42"
+          Id="Package\SEQC - CODS Order Account Team\SQL - Insert Completion Flag (cods_order_account_team)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint]"
+          TopLeft="181,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint 1]"
+          TopLeft="181,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint 2]"
+          TopLeft="181,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="362,409.333333333334"
+          Size="362,452"
+          Id="Package\SEQC - CODS Order Account Team"
+          TopLeft="827,209.5" />
+        <NodeLayout
+          Size="266,42"
+          Id="Package\SEQC - CODS Quote Product\EPT - CODS QUOTE PRODUCT (STAGE)"
+          TopLeft="33.5,107.5" />
+        <NodeLayout
+          Size="277.333333333334,42"
+          Id="Package\SEQC - CODS Quote Product\EPT- CODS Quote Product   (MERGE)"
+          TopLeft="28,209.5" />
+        <NodeLayout
+          Size="318,42"
+          Id="Package\SEQC - CODS Quote Product\SQL - Check Job Run Status (cods_quote_product)"
+          TopLeft="7.5,5.5" />
+        <NodeLayout
+          Size="322,42"
+          Id="Package\SEQC - CODS Quote Product\SQL - Insert Completion Flag (cods_quote_product)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint]"
+          TopLeft="166.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint 1]"
+          TopLeft="166.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint 2]"
+          TopLeft="166.5,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="333.333333333334,409.333333333334"
+          Size="333.333333333334,452"
+          Id="Package\SEQC - CODS Quote Product"
+          TopLeft="1618.5,209.5" />
+        <NodeLayout
+          Size="273.333333333334,42"
+          Id="Package\SEQC - CODS Quote QProduct\EPT - CODS QUOTE QPRODUCT (STAGE)"
+          TopLeft="33,107.5" />
+        <NodeLayout
+          Size="262,42"
+          Id="Package\SEQC - CODS Quote QProduct\EPT- CODS Quote QProduct   (MERGE)"
+          TopLeft="38.5,209.5" />
+        <NodeLayout
+          Size="324,42"
+          Id="Package\SEQC - CODS Quote QProduct\SQL - Check Job Run Status (cods_quote_qproduct)"
+          TopLeft="7.5,5.5" />
+        <NodeLayout
+          Size="328,42"
+          Id="Package\SEQC - CODS Quote QProduct\SQL - Insert Completion Flag (cods_quote_qproduct)"
+          TopLeft="5.50000000000006,311.5" />
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint]"
+          TopLeft="169.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint 1]"
+          TopLeft="169.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-110.648515625,18.25,221.29703125,16"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint 2]"
+          TopLeft="169.5,251.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="338.666666666667,409.333333333334"
+          Size="338.666666666667,452"
+          Id="Package\SEQC - CODS Quote QProduct"
+          TopLeft="5.49999999999977,209.5" />
+        <NodeLayout
+          Size="210.666666666667,42"
+          Id="Package\SQL - Get Job Info"
+          TopLeft="1298.5,5.49999999999977" />
+        <NodeLayout
+          Size="166,42"
+          Id="Package\SQL - Log Job End"
+          TopLeft="925,864.5" />
+        <NodeLayout
+          Size="170.666666666667,42"
+          Id="Package\SQL - Log Job Start"
+          TopLeft="1318.5,107.5" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="1349.66666666667,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-763.666666666667,60.0000000000002"
+              Start="0,0"
+              End="-763.666666666667,52.5000000000002">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,12.0285714285715" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.0285714285715"
+                    Point2="0,16.0285714285715"
+                    Point3="-4,16.0285714285715" />
+                  <mssgle:LineSegment
+                    End="-759.666666666667,16.0285714285715" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-759.666666666667,16.0285714285715"
+                    Point2="-763.666666666667,16.0285714285715"
+                    Point3="-763.666666666667,20.0285714285715" />
+                  <mssgle:LineSegment
+                    End="-763.666666666667,52.5000000000002" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint - SQL Log Job Start]"
+          TopLeft="1404,47.4999999999998">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="1376.83333333333,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-368.833333333333,60.0000000000002"
+              Start="0,0"
+              End="-368.833333333333,52.5000000000002">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,20.3337195828506" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,20.3337195828506"
+                    Point2="0,24.3337195828506"
+                    Point3="-4,24.3337195828506" />
+                  <mssgle:LineSegment
+                    End="-364.833333333333,24.3337195828506" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-364.833333333333,24.3337195828506"
+                    Point2="-368.833333333333,24.3337195828506"
+                    Point3="-368.833333333333,28.3337195828506" />
+                  <mssgle:LineSegment
+                    End="-368.833333333333,52.5000000000002" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 10]"
+          TopLeft="175,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="776.571428571429,203"
+              Start="0,0"
+              End="776.571428571429,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,149.77183833116" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,149.77183833116"
+                    Point2="0,153.77183833116"
+                    Point3="4,153.77183833116" />
+                  <mssgle:LineSegment
+                    End="772.571428571429,153.77183833116" />
+                  <mssgle:CubicBezierSegment
+                    Point1="772.571428571429,153.77183833116"
+                    Point2="776.571428571429,153.77183833116"
+                    Point3="776.571428571429,157.77183833116" />
+                  <mssgle:LineSegment
+                    End="776.571428571429,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 11]"
+          TopLeft="1345.78571428571,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-1170.78571428571,60"
+              Start="0,0"
+              End="-1170.78571428571,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,10.5155161494617" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,10.5155161494617"
+                    Point2="0,14.5155161494617"
+                    Point3="-4,14.5155161494617" />
+                  <mssgle:LineSegment
+                    End="-1166.78571428571,14.5155161494617" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-1166.78571428571,14.5155161494617"
+                    Point2="-1170.78571428571,14.5155161494617"
+                    Point3="-1170.78571428571,18.5155161494617" />
+                  <mssgle:LineSegment
+                    End="-1170.78571428571,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="586,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="388.142857142857,203"
+              Start="0,0"
+              End="388.142857142857,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,123.505945945946" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,123.505945945946"
+                    Point2="0,127.505945945946"
+                    Point3="4,127.505945945946" />
+                  <mssgle:LineSegment
+                    End="384.142857142857,127.505945945946" />
+                  <mssgle:CubicBezierSegment
+                    Point1="384.142857142857,127.505945945946"
+                    Point2="388.142857142857,127.505945945946"
+                    Point3="388.142857142857,131.505945945946" />
+                  <mssgle:LineSegment
+                    End="388.142857142857,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="1404,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="1008,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-11.2857142857141,203"
+              Start="0,0"
+              End="-11.2857142857141,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,104.903970452447" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,104.903970452447"
+                    Point2="0,108.903970452447"
+                    Point3="-4,108.903970452447" />
+                  <mssgle:LineSegment
+                    End="-7.28571428571411,108.903970452447" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-7.28571428571411,108.903970452447"
+                    Point2="-11.2857142857141,108.903970452447"
+                    Point3="-11.2857142857141,112.903970452447" />
+                  <mssgle:LineSegment
+                    End="-11.2857142857141,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="1404,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-384.714285714286,203"
+              Start="0,0"
+              End="-384.714285714286,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,104.903970452447" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,104.903970452447"
+                    Point2="0,108.903970452447"
+                    Point3="-4,108.903970452447" />
+                  <mssgle:LineSegment
+                    End="-380.714285714286,108.903970452447" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-380.714285714286,108.903970452447"
+                    Point2="-384.714285714286,108.903970452447"
+                    Point3="-384.714285714286,112.903970452447" />
+                  <mssgle:LineSegment
+                    End="-384.714285714286,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 6]"
+          TopLeft="1431.16666666667,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="353.833333333333,60"
+              Start="0,0"
+              End="353.833333333333,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,20.3337195828505" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,20.3337195828505"
+                    Point2="0,24.3337195828505"
+                    Point3="4,24.3337195828505" />
+                  <mssgle:LineSegment
+                    End="349.833333333333,24.3337195828505" />
+                  <mssgle:CubicBezierSegment
+                    Point1="349.833333333333,24.3337195828505"
+                    Point2="353.833333333333,24.3337195828505"
+                    Point3="353.833333333333,28.3337195828505" />
+                  <mssgle:LineSegment
+                    End="353.833333333333,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 7]"
+          TopLeft="1785,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-743.142857142857,203"
+              Start="0,0"
+              End="-743.142857142857,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,123.505945945946" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,123.505945945946"
+                    Point2="0,127.505945945946"
+                    Point3="-4,127.505945945946" />
+                  <mssgle:LineSegment
+                    End="-739.142857142857,127.505945945946" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-739.142857142857,127.505945945946"
+                    Point2="-743.142857142857,127.505945945946"
+                    Point3="-743.142857142857,131.505945945946" />
+                  <mssgle:LineSegment
+                    End="-743.142857142857,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 8]"
+          TopLeft="1458.33333333333,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="723.666666666667,60"
+              Start="0,0"
+              End="723.666666666667,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,12.0285714285715" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.0285714285715"
+                    Point2="0,16.0285714285715"
+                    Point3="4,16.0285714285715" />
+                  <mssgle:LineSegment
+                    End="719.666666666667,16.0285714285715" />
+                  <mssgle:CubicBezierSegment
+                    Point1="719.666666666667,16.0285714285715"
+                    Point2="723.666666666667,16.0285714285715"
+                    Point3="723.666666666667,20.0285714285715" />
+                  <mssgle:LineSegment
+                    End="723.666666666667,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 9]"
+          TopLeft="2182,661.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-1117.57142857143,203"
+              Start="0,0"
+              End="-1117.57142857143,195.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,149.77183833116" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,149.77183833116"
+                    Point2="0,153.77183833116"
+                    Point3="-4,153.77183833116" />
+                  <mssgle:LineSegment
+                    End="-1113.57142857143,153.77183833116" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-1113.57142857143,153.77183833116"
+                    Point2="-1117.57142857143,153.77183833116"
+                    Point3="-1117.57142857143,157.77183833116" />
+                  <mssgle:LineSegment
+                    End="-1117.57142857143,195.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <AnnotationLayout
+          Text="Author:        Chad Tjelmeland&#xA;Create date: 04/27/2021&#xA;Justification: This will be the master package for the cods processes that have progressed into &#xA;                   an incremental load status.   THere is a dependency for a pseudo job set up that should &#xA;                   hold this process until CODS Is available from the DSL_SD and VPROV processes.  Once&#xA;                   one of those is available it will log cods ready.&#xA;&#xA;                   Each container will have its own derived value that is the &quot;daily check&quot; that goes into&#xA;                   a standalone table dbo.job_validation_completion_check if you need to re-run something that &#xA;                   previously ran for the day you will need to delete that days entry from that table only.&#xA;&#xA;                   delete from dbo.job_validation_completion_check WHERE job_name = &lt;&gt; AND run_date = CAST(getdate() AS DATE);&#xA;&#xA;                   NOTE: If you need to execute this master package interactively, verify&#xA;                             the value of the vDTSXPath variable matches the path your TFS&#xA;                             Local Path is mapped to.  Otherwise, the child packages will not&#xA;                             be found.&#xA;&#xA;                             On the SSIS Server, the value of the vDTSXPath variable is set at&#xA;                             run-time via the calling SQL Server Agent job.  So it is not necessary&#xA;                             to reset this variable ahead of deployment."
+          ParentId="Package"
+          Size="732,328"
+          Id="77f38529-950f-4ece-b9ac-754c1551ee41"
+          TopLeft="1152,721.5">
+          <AnnotationLayout.FontInfo>
+            <mssge:FontInfo
+              Family="Tahoma"
+              Size="12"
+              Color="#FF0000FF">
+              <mssge:FontInfo.TextDecorations>
+                <av:TextDecorationCollection />
+              </mssge:FontInfo.TextDecorations>
+            </mssge:FontInfo>
+          </AnnotationLayout.FontInfo>
+        </AnnotationLayout>
+        <AnnotationLayout
+          Text="To Reprocess Job 2nd Time in a day&#xA;DELETE FROM dbo.job_validation_completion_check &#xA;WHERE job_name = '&lt;&lt;JOBNAME&gt;&gt;'&#xA;AND run_date = CAST(getdate() AS DATE);&#xA;"
+          ParentId="Package"
+          FontInfo="{assembly:Null}"
+          Size="308,104"
+          Id="e806d937-ebd5-4cd2-a1fb-907d31f9feea"
+          TopLeft="1945,831.5" />
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <DtsEventHandler
+    design-time-name="Package.EventHandlers[OnError]">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph">
+        <NodeLayout
+          Size="186,42"
+          Id="Package.EventHandlers[OnError]\SQL - Log Job Failure"
+          TopLeft="5.5,5.5" />
+      </GraphLayout>
+    </LayoutInfo>
+  </DtsEventHandler>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC -  CODS Order contacts.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC - CODS Customer.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC - CODS Customer Orders.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC - CODS Order Account Team.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC - CODS Quote Product.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+  <PrecedenceConstraint
+    design-time-name="Package\SEQC - CODS Quote QProduct.PrecedenceConstraints[Constraint 1]">
+    <ShowAnnotation>ConstraintOptions</ShowAnnotation>
+  </PrecedenceConstraint>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

@@ -1,0 +1,270 @@
+# SSIS to Fabric Pipeline Mapping Rules
+# Version: 1.0.0
+# This file defines the canonical mapping between SSIS components and Fabric activities
+
+version: "1.0.0"
+lastUpdated: "2024-01-01"
+
+# SSIS Activity Taxonomy
+ssisTaxonomy:
+  controlFlow:
+    - ExecuteSQLTask
+    - ScriptTask
+    - DataFlowTask
+    - ForEachLoopContainer
+    - ForLoopContainer
+    - SequenceContainer
+    - ConditionalSplit
+    - FileSystemTask
+    - ExecuteProcessTask
+    - ExecutePackageTask
+    - SendMailTask
+    
+  dataFlow:
+    - OLE_DB_Source
+    - FlatFileSource
+    - ExcelSource
+    - ADO_NET_Source
+    - OLE_DB_Destination
+    - FlatFileDestination
+    - ExcelDestination
+    - ADO_NET_Destination
+    - Lookup
+    - Merge
+    - MergeJoin
+    - ConditionalSplit
+    - DerivedColumn
+    - Sort
+    - Aggregate
+    - UnionAll
+    - Multicast
+    
+  containers:
+    - ForEachLoopContainer
+    - ForLoopContainer
+    - SequenceContainer
+    - TaskHost
+    
+  expressions:
+    - VariableExpression
+    - PropertyExpression
+    
+  variables:
+    - PackageVariable
+    - TaskVariable
+    - SystemVariable
+
+# Fabric Activity Taxonomy
+fabricTaxonomy:
+  activities:
+    - Copy
+    - Script
+    - ForEach
+    - Notebook
+    - Conditional
+    - SQLScript
+    - MappingDataFlow
+    - ExecutePipeline
+    
+  sources:
+    - ADLSGen2
+    - OneLake
+    - FabricWarehouse
+    - SQLEndpoint
+    
+  destinations:
+    - ADLSGen2
+    - OneLake
+    - FabricWarehouse
+    - SQLEndpoint
+
+# Mapping Rules
+mappings:
+  # Execute SQL Task
+  ExecuteSQLTask:
+    target: SQLScript
+    confidence: "high"
+    supportLevel: "full"
+    mapping:
+      sqlStatement: "properties.sqlStatementSource"
+      connectionManager: "properties.connection"
+      timeout: "properties.timeout"
+      parameters: "properties.parameterBindings"
+    unsupported:
+      - resultSetBindings
+      - outputParameters
+      - storedProcedureOutput
+    warnings:
+      - "Dynamic SQL expressions need manual validation"
+      - "Stored procedure output not supported"
+      - "Result set bindings not supported"
+    notes: "Maps to Fabric SQL Script Activity. Parameter bindings converted to pipeline parameters."
+
+  # Data Flow Task -> Copy Activity (simple case)
+  DataFlowTask:
+    target: Copy
+    confidence: "conditional"
+    supportLevel: "partial"
+    conditions:
+      simpleFlow:
+        description: "Single source to single destination"
+        check: "components.length == 2 AND components[0].type == 'Source' AND components[1].type == 'Destination'"
+        target: "Copy"
+        confidence: "high"
+      complexFlow:
+        description: "Multiple transformations"
+        check: "components.length > 2 OR hasTransformations"
+        target: "MappingDataFlow"
+        confidence: "medium"
+        fallback: "Notebook"
+    unsupported:
+      - errorOutputs
+      - multipleOutputs
+      - conditionalSplits
+    warnings:
+      - "Complex transformations require Mapping Data Flow or Notebook"
+      - "Error outputs need manual mapping"
+    notes: "Simple flows map to Copy Activity. Complex flows map to Mapping Data Flow or Notebook."
+
+  # Lookup Transform
+  Lookup:
+    target: MappingDataFlow
+    confidence: "medium"
+    supportLevel: "partial"
+    fallback: "Notebook"
+    mapping:
+      joinCondition: "properties.joinColumns"
+      cacheMode: "properties.cacheMode"  # Full/Partial/No cache
+    unsupported:
+      - noCacheMode
+    warnings:
+      - "Performance risk for large datasets in no-cache mode"
+      - "Manual tuning required for optimal performance"
+    notes: "Preferred mapping to Mapping Data Flow. Large datasets may require Notebook fallback."
+
+  # Flat File Source
+  FlatFileSource:
+    target: ADLSGen2
+    confidence: "high"
+    supportLevel: "full"
+    mapping:
+      filePath: "properties.connectionString OR properties.filePath"
+      delimiter: "properties.columnDelimiter"
+      textQualifier: "properties.textQualifier"
+      encoding: "properties.codePage"
+      firstRowHeader: "properties.firstRowHeader"
+    schemaInference: true
+    notes: "Maps to ADLS Gen2 or OneLake source. Schema inference logic generated."
+
+  # OLE DB Source
+  OLE_DB_Source:
+    target: FabricWarehouse
+    confidence: "high"
+    supportLevel: "full"
+    fallback: "SQLEndpoint"
+    mapping:
+      query: "properties.sqlCommand"
+      tableName: "properties.tableName"
+      connectionManager: "connectionId"
+    unsupported:
+      - queryHints
+      - ssisSpecificFeatures
+    warnings:
+      - "SSIS-specific query hints may not be supported"
+    notes: "Maps to Fabric Warehouse or SQL Endpoint. Connection string parsed and mapped."
+
+  # OLE DB Destination
+  OLE_DB_Destination:
+    target: FabricWarehouse
+    confidence: "high"
+    supportLevel: "full"
+    fallback: "SQLEndpoint"
+    mapping:
+      tableName: "properties.openRowset OR properties.tableName"
+      connectionManager: "connectionId"
+      batchSize: "properties.batchSize"
+    notes: "Maps to Fabric Warehouse or SQL Endpoint destination."
+
+  # ForEach Loop Container
+  ForEachLoopContainer:
+    target: ForEach
+    confidence: "high"
+    supportLevel: "partial"
+    mapping:
+      enumeratorType: "properties.enumeratorType"
+      variableMapping: "properties.variableMappings"
+    supportedEnumerators:
+      - File
+      - ADO_Recordset
+      - Variable
+    unsupported:
+      - nestedLoops
+      - complexExpressions
+    warnings:
+      - "Nested loops may require manual refactoring"
+      - "Complex variable expressions need validation"
+    notes: "Maps to Fabric ForEach activity. Loop variable bindings converted."
+
+  # Variables -> Pipeline Parameters
+  Variables:
+    target: PipelineParameters
+    confidence: "high"
+    supportLevel: "full"
+    mapping:
+      packageVariables: "package.variables -> pipeline.parameters"
+      taskVariables: "task.variables -> activity.parameters"
+      expressions: "variable.expression -> parameter.defaultValue"
+    notes: "Package variables become pipeline parameters. Task variables become activity parameters."
+
+  # Script Task
+  ScriptTask:
+    target: Script
+    confidence: "medium"
+    supportLevel: "partial"
+    mapping:
+      scriptCode: "properties.scriptCode"
+      scriptLanguage: "properties.scriptLanguage"
+    unsupported:
+      - vbScript
+      - cSharpScript
+      - complexDependencies
+    warnings:
+      - "Script code may need refactoring for Fabric environment"
+      - "External dependencies need to be packaged"
+    fallback: "Notebook"
+    notes: "Maps to Fabric Script activity or Notebook if dependencies required."
+
+# Classification Rules
+classification:
+  fullySupported:
+    - ExecuteSQLTask
+    - OLE_DB_Source
+    - OLE_DB_Destination
+    - FlatFileSource
+    - Variables
+  
+  partiallySupported:
+    - DataFlowTask
+    - Lookup
+    - ForEachLoopContainer
+    - ScriptTask
+    
+  unsupported:
+    - ExecutePackageTask
+    - SendMailTask
+    - FileSystemTask
+    - ExecuteProcessTask
+    
+# Confidence Scoring
+confidenceScoring:
+  high: 0.9
+  medium: 0.6
+  low: 0.3
+  conditional: 0.7
+
+# Support Level Mapping
+supportLevelMapping:
+  full: "✅ Fully supported"
+  partial: "⚠ Partially supported"
+  unsupported: "❌ Unsupported"
+
