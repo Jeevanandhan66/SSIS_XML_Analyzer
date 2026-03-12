@@ -1466,6 +1466,74 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                   <p className="text-xs text-muted-foreground mt-1">(Connection details not found)</p>
                 </div>
               )}
+
+              {/* Execute Package Task Properties - Nested inside Overview */}
+              {activity.type === 'Execute Package Task' && activity.executePackageTaskProperties && (
+                <div className="col-span-2 mt-6 pt-6 border-t border-border">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-4">
+                    📦 Execute Package Task Properties
+                  </p>
+                  <div className="space-y-4">
+                    {/* Package Name */}
+                    {activity.executePackageTaskProperties.packageName && (
+                      <div className="p-4 bg-muted/50 rounded-md border border-border">
+                        <div className="flex items-center gap-2 mb-3">
+                          <FileText className="w-4 h-4 text-primary" />
+                          <p className="text-sm font-semibold text-foreground">
+                            Package Name
+                          </p>
+                        </div>
+                        <p className="text-sm font-mono text-foreground break-all">
+                          {activity.executePackageTaskProperties.packageName}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Use Project Reference */}
+                    {activity.executePackageTaskProperties.useProjectReference !== undefined && (
+                      <div className="grid grid-cols-[200px_1fr] gap-4 py-2 border-b border-border">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">Use Project Reference</p>
+                          <p className="text-xs text-muted-foreground/70 mt-0.5">Reference from SSIS project</p>
+                        </div>
+                        <div>
+                          <Badge variant={activity.executePackageTaskProperties.useProjectReference ? "default" : "secondary"} className="text-xs">
+                            {activity.executePackageTaskProperties.useProjectReference ? "Yes" : "No"}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Parameter Assignments */}
+                    {activity.executePackageTaskProperties.parameterAssignments && 
+                     activity.executePackageTaskProperties.parameterAssignments.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
+                          Parameter Assignments ({activity.executePackageTaskProperties.parameterAssignments.length})
+                        </p>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="border-b border-border">
+                                <th className="text-left py-2 px-2 font-medium text-muted-foreground">Parameter Name</th>
+                                <th className="text-left py-2 px-2 font-medium text-muted-foreground">Binded Variable/Parameter</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {activity.executePackageTaskProperties.parameterAssignments.map((param, idx) => (
+                                <tr key={idx} className="border-b border-border/50 last:border-0">
+                                  <td className="py-2 px-2 font-mono text-foreground">{param.parameterName || '-'}</td>
+                                  <td className="py-2 px-2 font-mono text-foreground">{param.bindedVariableOrParameterName || '-'}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -1860,78 +1928,6 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
           </>
         )}
 
-        {/* Execute Package Task Properties Section */}
-        {activity.type === 'Execute Package Task' && activity.executePackageTaskProperties && (
-          <AccordionItem value="execute-package-props" className="border border-border rounded-lg px-4 bg-card">
-            <AccordionTrigger className="hover:no-underline py-4">
-              <span className="text-sm font-semibold text-foreground">
-                📦 Execute Package Task Properties
-              </span>
-            </AccordionTrigger>
-            <AccordionContent className="pb-4">
-              <div className="space-y-4">
-                {/* Package Name */}
-                {activity.executePackageTaskProperties.packageName && (
-                  <div className="p-4 bg-muted/50 rounded-md border border-border">
-                    <div className="flex items-center gap-2 mb-3">
-                      <FileText className="w-4 h-4 text-primary" />
-                      <p className="text-sm font-semibold text-foreground">
-                        Package Name
-                      </p>
-                    </div>
-                    <p className="text-sm font-mono text-foreground break-all">
-                      {activity.executePackageTaskProperties.packageName}
-                    </p>
-                  </div>
-                )}
-
-                {/* Use Project Reference */}
-                {activity.executePackageTaskProperties.useProjectReference !== undefined && (
-                  <div className="grid grid-cols-[200px_1fr] gap-4 py-2 border-b border-border">
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">Use Project Reference</p>
-                      <p className="text-xs text-muted-foreground/70 mt-0.5">Reference from SSIS project</p>
-                    </div>
-                    <div>
-                      <Badge variant={activity.executePackageTaskProperties.useProjectReference ? "default" : "secondary"} className="text-xs">
-                        {activity.executePackageTaskProperties.useProjectReference ? "Yes" : "No"}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
-
-                {/* Parameter Assignments */}
-                {activity.executePackageTaskProperties.parameterAssignments && 
-                 activity.executePackageTaskProperties.parameterAssignments.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
-                      Parameter Assignments ({activity.executePackageTaskProperties.parameterAssignments.length})
-                    </p>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b border-border">
-                            <th className="text-left py-2 px-2 font-medium text-muted-foreground">Parameter Name</th>
-                            <th className="text-left py-2 px-2 font-medium text-muted-foreground">Binded Variable/Parameter</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {activity.executePackageTaskProperties.parameterAssignments.map((param, idx) => (
-                            <tr key={idx} className="border-b border-border/50 last:border-0">
-                              <td className="py-2 px-2 font-mono text-foreground">{param.parameterName || '-'}</td>
-                              <td className="py-2 px-2 font-mono text-foreground">{param.bindedVariableOrParameterName || '-'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        )}
-
         {/* Data Flow Task Overview */}
         {activity.components && activity.components.length > 0 && activity.type.includes('Pipeline') && (
           <AccordionItem value="dft-overview" className="border border-border rounded-lg px-4 bg-card">
@@ -2096,75 +2092,6 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
           </AccordionItem>
         )}
 
-        {/* Referenced Tables from Data Flow Components */}
-        {activity.components && activity.components.length > 0 && (() => {
-          const sourceComponent = activity.components.find(c => c.componentType === 'Source');
-          const hasSourceTables = sourceComponent?.sourceMetadata?.referencedTables && sourceComponent.sourceMetadata.referencedTables.length > 0;
-          const hasSqlQuery = sourceComponent?.sourceMetadata?.sourceQuery;
-          
-          const destComponent = activity.components.find(c => c.componentType === 'Destination');
-          const hasDestTables = destComponent?.destinationMetadata?.referencedTables && destComponent.destinationMetadata.referencedTables.length > 0;
-          const hasDestSqlQuery = destComponent?.destinationMetadata?.sqlCommand;
-          
-          if (hasSourceTables || hasDestTables) {
-            return (
-              <AccordionItem value="referenced-tables" className="border border-border rounded-lg px-4 bg-card">
-                <AccordionTrigger className="hover:no-underline py-4">
-                  <span className="text-sm font-semibold text-foreground">
-                    📊 Referenced Tables in Queries
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="pb-4">
-                  <div className="space-y-4">
-                    {/* Source Referenced Tables */}
-                    {hasSourceTables && sourceComponent?.sourceMetadata && (
-                      <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-md border border-blue-200 dark:border-blue-800">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100 mb-2">
-                          Source Query - Referenced Tables
-                        </p>
-                        {hasSqlQuery && (
-                          <pre className="bg-background p-2 rounded text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap mb-3 max-h-24">
-                            {sourceComponent.sourceMetadata.sourceQuery}
-                          </pre>
-                        )}
-                        <div className="flex flex-wrap gap-2">
-                          {sourceComponent.sourceMetadata.referencedTables?.map((tableRef, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={`${tableRef.database ? tableRef.database + '.' : ''}${tableRef.schema ? tableRef.schema + '.' : ''}${tableRef.table}`}>
-                              {tableRef.fullName}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Destination Referenced Tables */}
-                    {hasDestTables && destComponent?.destinationMetadata && (
-                      <div className="p-3 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-green-900 dark:text-green-100 mb-2">
-                          Destination Query - Referenced Tables
-                        </p>
-                        {hasDestSqlQuery && (
-                          <pre className="bg-background p-2 rounded text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap mb-3 max-h-24">
-                            {destComponent.destinationMetadata.sqlCommand}
-                          </pre>
-                        )}
-                        <div className="flex flex-wrap gap-2">
-                          {destComponent.destinationMetadata.referencedTables?.map((tableRef, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={`${tableRef.database ? tableRef.database + '.' : ''}${tableRef.schema ? tableRef.schema + '.' : ''}${tableRef.table}`}>
-                              {tableRef.fullName}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            );
-          }
-          return null;
-        })()}
-
         {/* Data Flow Components Section */}
         {activity.components && activity.components.length > 0 && (
           <AccordionItem value="components" className="border border-border rounded-lg px-4 bg-card">
@@ -2282,8 +2209,11 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
-                    {/* Component Connections (Multiple connections used in transformations) */}
-                    {component.componentConnections && component.componentConnections.length > 0 && (
+                    {/* Component Connections (Multiple connections used in transformations) - Only for Transformation components, not Source/Destination */}
+                    {component.componentType !== 'Source' && 
+                     component.componentType !== 'Destination' && 
+                     component.componentConnections && 
+                     component.componentConnections.length > 0 && (
                       <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
                         <p className="text-xs font-medium uppercase tracking-wide text-blue-800 dark:text-blue-200 mb-2">
                           Connections Used in This Component
@@ -2304,6 +2234,38 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                                 </div>
                               )}
                             </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Referenced Tables for Source Components */}
+                    {component.componentType === 'Source' && component.sourceMetadata?.referencedTables && component.sourceMetadata.referencedTables.length > 0 && (
+                      <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100 mb-2">
+                          📊 Referenced Tables ({component.sourceMetadata.referencedTables.length})
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {component.sourceMetadata.referencedTables.map((tableRef, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={`${tableRef.database ? tableRef.database + '.' : ''}${tableRef.schema ? tableRef.schema + '.' : ''}${tableRef.table}`}>
+                              {tableRef.fullName}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Referenced Tables for Destination Components */}
+                    {component.componentType === 'Destination' && component.destinationMetadata?.referencedTables && component.destinationMetadata.referencedTables.length > 0 && (
+                      <div className="mb-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-md">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-green-900 dark:text-green-100 mb-2">
+                          📊 Referenced Tables ({component.destinationMetadata.referencedTables.length})
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {component.destinationMetadata.referencedTables.map((tableRef, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs font-mono break-all cursor-help" title={`${tableRef.database ? tableRef.database + '.' : ''}${tableRef.schema ? tableRef.schema + '.' : ''}${tableRef.table}`}>
+                              {tableRef.fullName}
+                            </Badge>
                           ))}
                         </div>
                       </div>
