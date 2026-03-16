@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "Deploying pipelines..."
+
+for file in pipelines/*.json
+do
+  databricks pipelines create --json-file "$file"
+done
+
+echo "Creating jobs..."
+
+for file in jobs/*.json
+do
+  databricks jobs create --json-file "$file"
+done
+
+echo "Deployment completed."
+

@@ -1,6 +1,6 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException, Body
+from fastapi import FastAPI, File, UploadFile, HTTPException, Body, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, FileResponse
 from lxml import etree
 from typing import List, Dict, Any, Optional, Union, Set
 import re
@@ -10,6 +10,10 @@ import os
 import platform
 import json
 import sys
+import uuid
+import shutil
+import zipfile
+import time
 from pathlib import Path
 
 # Try to import sqlglot for SQL parsing
@@ -31,13 +35,26 @@ try:
     from fabric_mapping_engine import MappingEngine
     from fabric_pipeline_generator import FabricPipelineGenerator
     MAPPING_ENGINE_AVAILABLE = True
-except ImportError as e:    
+except ImportError as e:
     MappingEngine = None
     FabricPipelineGenerator = None
     MAPPING_ENGINE_AVAILABLE = False
     print(f"Warning: Fabric mapping modules not available: {e}")
 
 app = FastAPI()
+
+# In-memory store for already-parsed package metadata keyed by packageId.
+# The generator endpoint ONLY consumes this parsed metadata (no re-parsing of DTSX).
+_PARSED_PACKAGE_STORE: Dict[str, Dict[str, Any]] = {}
+_PARSED_PACKAGE_STORE_MAX = 50
+
+try:
+    from migration_artifact_generator import MigrationArtifactGenerator
+    MIGRATION_ARTIFACTS_AVAILABLE = True
+except ImportError as e:
+    MigrationArtifactGenerator = None
+    MIGRATION_ARTIFACTS_AVAILABLE = False
+    print(f"Warning: Migration artifact generator not available: {e}")
 
 # Configure CORS
 app.add_middleware(
@@ -2317,12 +2334,23 @@ async def parse_dtsx(
             'containers': containers,
             'componentSummary': component_summary,
         }
-        
+
+        package_id = str(uuid.uuid4())
+        _PARSED_PACKAGE_STORE[package_id] = {
+            "parsed_data": parsed_data,
+            "package_name": metadata.get('packageName', metadata.get('objectName', 'SSISPackage')),
+            "created_at": time.time(),
+        }
+        if len(_PARSED_PACKAGE_STORE) > _PARSED_PACKAGE_STORE_MAX:
+            oldest = sorted(_PARSED_PACKAGE_STORE.items(), key=lambda kv: kv[1].get("created_at", 0.0))[0][0]
+            _PARSED_PACKAGE_STORE.pop(oldest, None)
+
         return {
             'success': True,
             'message': f'Successfully parsed {len(activities)} activities, {len(variables)} variables',
             'data': parsed_data,
-            'formattedXml': formatted_xml
+            'formattedXml': formatted_xml,
+            'packageId': package_id,
         }
         
     except HTTPException:
@@ -2630,6 +2658,53 @@ async def health_check():
         },
         "allRoutes": registered_routes
     }
+
+
+@app.get("/api/migration-package/{packageId}")
+async def get_migration_package(packageId: str, background_tasks: BackgroundTasks):
+    """
+    Generate a downloadable ZIP migration bundle using already-parsed SSIS metadata stored for the packageId.
+    """
+    if not MIGRATION_ARTIFACTS_AVAILABLE or MigrationArtifactGenerator is None:
+        raise HTTPException(status_code=500, detail="MigrationArtifactGenerator is not available on the server.")
+
+    entry = _PARSED_PACKAGE_STORE.get(packageId)
+    if not entry or not isinstance(entry, dict) or "parsed_data" not in entry:
+        raise HTTPException(status_code=404, detail="Unknown packageId or metadata has expired. Parse the package again.")
+
+    parsed_data = entry["parsed_data"]
+    package_name = (
+        entry.get("package_name")
+        or parsed_data.get("metadata", {}).get("packageName")
+        or parsed_data.get("metadata", {}).get("objectName")
+        or "SSISPackage"
+    )
+    safe_pkg = re.sub(r"[^A-Za-z0-9._-]+", "_", str(package_name)).strip("_") or "SSISPackage"
+
+    temp_root = Path(tempfile.mkdtemp(prefix="migration_pkg_"))
+    zip_path = temp_root / f"{safe_pkg}_migration_package.zip"
+
+    try:
+        gen = MigrationArtifactGenerator()
+        gen.build_migration_package(parsed_data, temp_root)
+
+        pkg_dir = temp_root / "migration_package"
+        with zipfile.ZipFile(str(zip_path), "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for p in pkg_dir.rglob("*"):
+                if p.is_dir():
+                    continue
+                zf.write(str(p), arcname=str(p.relative_to(temp_root)))
+    except Exception as e:
+        shutil.rmtree(temp_root, ignore_errors=True)
+        raise HTTPException(status_code=500, detail=f"Failed to build migration package: {str(e)}")
+
+    background_tasks.add_task(shutil.rmtree, temp_root, True)
+
+    return FileResponse(
+        path=str(zip_path),
+        media_type="application/zip",
+        filename=f"{safe_pkg}_migration_package.zip",
+    )
 
 
 if __name__ == "__main__":

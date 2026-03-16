@@ -1,0 +1,15 @@
+{
+  "name": {{ name | tojson }},
+  "tasks": [
+    {
+      "task_key": "run_pipeline",
+      "pipeline_task": {
+        "pipeline_id": {{ pipeline_id | tojson }},
+        "full_refresh": false
+      }
+    }
+  ],
+  "max_concurrent_runs": 1,
+  "timeout_seconds": 0
+}
+

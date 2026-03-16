@@ -1,0 +1,27 @@
+{
+  "name": {{ name | tojson }},
+  "catalog": {{ catalog | tojson }},
+  "schema": {{ schema | tojson }},
+  "configuration": {
+    "mypipeline.adf_job_name": {{ adf_job_name | tojson }}
+  },
+  "clusters": [
+    {
+      "label": "default",
+      "autoscale": {
+        "min_workers": 1,
+        "max_workers": 5,
+        "mode": "ENHANCED"
+      }
+    }
+  ],
+  "libraries": [
+    {
+      "notebook": {
+        "path": {{ ("/Repos/" ~ repo_path ~ "/Generic_Load_Notebook") | tojson }}
+      }
+    }
+  ],
+  "development": {{ development | tojson }}
+}
+

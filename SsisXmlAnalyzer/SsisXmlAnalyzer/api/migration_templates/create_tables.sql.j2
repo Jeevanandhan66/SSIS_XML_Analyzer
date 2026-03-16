@@ -1,0 +1,38 @@
+-- Generated from SSIS package: {{ package_name }}
+-- Unity Catalog DDL
+
+{% set seen_catalogs = namespace(v=[]) %}
+{% set seen_schemas = namespace(v=[]) %}
+
+{% for t in tables %}
+{% if t.catalog and t.catalog not in seen_catalogs.v %}
+CREATE CATALOG IF NOT EXISTS {{ t.catalog }};
+
+{% set _ = seen_catalogs.v.append(t.catalog) %}
+{% endif %}
+{% endfor %}
+
+{% for t in tables %}
+{% set schema_key = (t.catalog ~ "." ~ t.schema) %}
+{% if t.catalog and t.schema and schema_key not in seen_schemas.v %}
+CREATE SCHEMA IF NOT EXISTS {{ t.catalog }}.{{ t.schema }};
+
+{% set _ = seen_schemas.v.append(schema_key) %}
+{% endif %}
+{% endfor %}
+
+{% for t in tables %}
+{% if t.catalog and t.schema and t.table %}
+CREATE TABLE IF NOT EXISTS {{ t.catalog }}.{{ t.schema }}.{{ t.table }}
+{% if t.columns and (t.columns | length) > 0 %}
+(
+{% for c in t.columns %}
+  {{ c[0] }} {{ c[1] }}{% if not loop.last %},{% endif %}
+{% endfor %}
+)
+{% endif %}
+USING DELTA;
+
+{% endif %}
+{% endfor %}
+

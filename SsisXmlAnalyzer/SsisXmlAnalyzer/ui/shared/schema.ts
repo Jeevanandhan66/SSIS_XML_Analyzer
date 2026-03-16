@@ -356,6 +356,7 @@ export const uploadResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
   data: parsedPackageSchema.optional(),
+  packageId: z.string().optional(),
 });
 
 export type UploadResponse = z.infer<typeof uploadResponseSchema>;

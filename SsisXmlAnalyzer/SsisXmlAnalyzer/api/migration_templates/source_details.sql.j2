@@ -1,0 +1,19 @@
+-- Generated from SSIS package: {{ package_name }}
+-- Target: dbo.SourceDetails (adjust table/columns to match your legacy metadata schema)
+
+{% for r in rows %}
+INSERT INTO dbo.SourceDetails
+(
+source_schema,
+source_table,
+source_query
+)
+VALUES
+(
+{{ r.source_schema | tojson }},
+{{ r.source_table | tojson }},
+{{ r.source_query | tojson }}
+);
+
+{% endfor %}
+

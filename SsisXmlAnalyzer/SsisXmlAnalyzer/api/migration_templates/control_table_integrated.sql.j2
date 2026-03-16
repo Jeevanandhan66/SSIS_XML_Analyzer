@@ -1,0 +1,29 @@
+-- Generated from SSIS package: {{ package_name }}
+-- Target: dbo.ControlTableIntegrated
+
+{% for r in rows %}
+INSERT INTO dbo.ControlTableIntegrated
+(
+pipeline_name,
+source_schema,
+source_table,
+target_catalog,
+target_schema,
+target_table,
+load_type,
+watermark_column
+)
+VALUES
+(
+{{ r.pipeline_name | tojson }},
+{{ r.source_schema | tojson }},
+{{ r.source_table | tojson }},
+{{ r.target_catalog | tojson }},
+{{ r.target_schema | tojson }},
+{{ r.target_table | tojson }},
+{{ r.load_type | tojson }},
+{% if r.watermark_column %}{{ r.watermark_column | tojson }}{% else %}NULL{% endif %}
+);
+
+{% endfor %}
+

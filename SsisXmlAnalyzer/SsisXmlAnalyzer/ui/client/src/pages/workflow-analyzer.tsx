@@ -17,6 +17,7 @@ import type { ParsedPackage, Activity, MappingTrace, ConversionSummary } from "@
 export default function WorkflowAnalyzer() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedPackage | null>(null);
+  const [packageId, setPackageId] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -40,6 +41,7 @@ export default function WorkflowAnalyzer() {
       if (file.name.endsWith('.xml') || file.name.endsWith('.dtsx')) {
         // Clear previous parsed data when a new file is selected
         setParsedData(null);
+        setPackageId(null);
         setSelectedActivity(null);
         setSearchQuery("");
         setXmlContent("");
@@ -67,6 +69,7 @@ export default function WorkflowAnalyzer() {
     if (file && (file.name.endsWith('.xml') || file.name.endsWith('.dtsx'))) {
       // Clear previous parsed data when a new file is dropped
       setParsedData(null);
+      setPackageId(null);
       setSelectedActivity(null);
       setSearchQuery("");
       setXmlContent("");
@@ -130,6 +133,7 @@ export default function WorkflowAnalyzer() {
 
       if (result.success && result.data) {
         setParsedData(result.data);
+        setPackageId(typeof result.packageId === "string" ? result.packageId : null);
         // Use formatted XML from API if available, otherwise use file text
         if (result.formattedXml) {
           setXmlContent(result.formattedXml);
@@ -164,6 +168,7 @@ export default function WorkflowAnalyzer() {
   const handleClear = () => {
     setSelectedFile(null);
     setParsedData(null);
+    setPackageId(null);
     setSelectedActivity(null);
     setSearchQuery("");
     setXmlContent("");
@@ -261,6 +266,39 @@ export default function WorkflowAnalyzer() {
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: "Downloaded", description: filename });
+  };
+
+  const handleDownloadMigrationPackage = async () => {
+    if (!packageId) {
+      toast({
+        title: "Migration package unavailable",
+        description: "Parse a package first to generate a migration bundle.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const res = await fetch(`/api/migration-package/${packageId}`, { method: "GET" });
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || `Request failed: ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const pkgName = parsedData?.metadata?.name || parsedData?.metadata?.objectName || "SSISPackage";
+      a.download = `${pkgName}_migration_package.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: "Downloaded", description: a.download });
+    } catch (e: any) {
+      toast({
+        title: "Download failed",
+        description: e?.message || "Failed to download migration package",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleMapToFabric = async () => {
@@ -998,6 +1036,16 @@ export default function WorkflowAnalyzer() {
                               >
                                 <FileDown className="w-4 h-4" />
                                 Download .sql
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={handleDownloadMigrationPackage}
+                                disabled={!packageId}
+                                className="gap-2 ml-2"
+                              >
+                                <Download className="w-4 h-4" />
+                                Download Migration Package
                               </Button>
                             </div>
                           </CardHeader>
