@@ -1,5 +1,9 @@
 {
   "name": {{ name | tojson }},
+  "format": "MULTI_TASK",
+  "queue": {
+    "enabled": true
+  },
   "tasks": [
     {
       "task_key": "run_pipeline",

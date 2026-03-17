@@ -20,11 +20,13 @@ def _safe_filename(s: str) -> str:
 
 
 def _safe_identifier(s: str) -> str:
-    # For names inside JSON/sql identifiers; keep wider but deterministic.
-    s = (s or "").strip()
+    # For resource / pipeline / job names: lowercase, alnum/underscore only.
+    s = (s or "").strip().lower()
     if not s:
         return "unknown"
-    return re.sub(r"\s+", "_", s)
+    # Replace any non-alphanumeric with underscore
+    s = re.sub(r"[^a-z0-9_]+", "_", s)
+    return s.strip("_") or "unknown"
 
 
 def _map_ssis_type_to_spark(ssis_type: str, length: Optional[int] = None, precision: Optional[int] = None, scale: Optional[int] = None) -> str:
@@ -136,13 +138,16 @@ class MigrationArtifactGenerator:
             table_file_key = _safe_filename(spec.target_table)
             pipeline_name = self._pipeline_name(spec.target_catalog, spec.target_schema, spec.target_table)
 
+            # Configuration value should avoid "*" for CLI friendliness
+            adf_job_name = f"adf_{_safe_identifier(spec.target_table)}_load"
+
             dlt_json = self._render(
                 "dlt_pipeline.json.j2",
                 {
                     "name": pipeline_name,
                     "catalog": spec.target_catalog,
                     "schema": spec.target_schema,
-                    "adf_job_name": f"adf*{_safe_identifier(spec.target_table)}_load",
+                    "adf_job_name": adf_job_name,
                     "repo_path": self._repo_path,
                     "development": self._development,
                 },
@@ -153,7 +158,7 @@ class MigrationArtifactGenerator:
                 "job.json.j2",
                 {
                     "name": f"job_dlt_{_safe_identifier(spec.target_table)}",
-                    "pipeline_id": "<pipeline_id_placeholder>",
+                    "pipeline_id": f"${{resources.pipelines.{pipeline_name}.id}}",
                 },
             )
             (jobs_dir / f"job_{table_file_key}.json").write_text(job_json + "\n", encoding="utf-8")
@@ -233,8 +238,16 @@ class MigrationArtifactGenerator:
         return rendered
 
     def _pipeline_name(self, catalog: str, schema: str, table: str) -> str:
-        # Deterministic naming rule: dlt_<env>*<catalog>*<schema>_<table>
-        return f"dlt_{_safe_identifier(self._env_name)}*{_safe_identifier(catalog)}*{_safe_identifier(schema)}_{_safe_identifier(table)}"
+        # Deterministic, CLI-safe naming rule:
+        # dlt_<env>_<catalog>_<schema>_<table> (all lowercase, safe chars)
+        parts = [
+            "dlt",
+            _safe_identifier(self._env_name),
+            _safe_identifier(catalog),
+            _safe_identifier(schema),
+            _safe_identifier(table),
+        ]
+        return "_".join([p for p in parts if p])
 
     def _extract_table_specs(self, parsed_data: Dict[str, Any]) -> List[TableMigrationSpec]:
         """
@@ -255,9 +268,13 @@ class MigrationArtifactGenerator:
             if not isinstance(components, list) or not components:
                 continue
 
-            source_comp = next((c for c in components if isinstance(c, dict) and c.get("componentType") == "Source" and c.get("sourceMetadata")), None)
+            source_comp = next(
+                (c for c in components if isinstance(c, dict) and c.get("componentType") == "Source" and c.get("sourceMetadata")),
+                None,
+            )
             dest_comp = next((c for c in components if isinstance(c, dict) and c.get("destinationMetadata")), None)
             if not dest_comp:
+                # Without a destination, we can't build a DLT target
                 continue
 
             sm = (source_comp or {}).get("sourceMetadata") or {}
@@ -267,13 +284,21 @@ class MigrationArtifactGenerator:
             source_table = (sm.get("sourceTableName") or "") or ""
             source_query = (sm.get("sourceQuery") or "") or ""
 
-            target_catalog = (dm.get("targetDBName") or "") or ""
-            target_schema = (dm.get("targetSchemaName") or "") or ""
-            target_table = (dm.get("targetTableName") or "") or ""
+            # Be forgiving but deterministic when inferring target identifiers.
+            dest_conn_details = dest_comp.get("connectionDetails") or {}
 
-            if not (target_catalog and target_schema and target_table):
-                # Skip incomplete UC mapping
+            target_table = (dm.get("targetTableName") or source_table or "").strip()
+            if not target_table:
+                # If we cannot infer any table name at all, skip.
                 continue
+
+            target_schema = (dm.get("targetSchemaName") or source_schema or "dbo") or "dbo"
+
+            target_catalog = (
+                (dm.get("targetDBName") or "")
+                or (dest_conn_details.get("initialCatalog") or dest_conn_details.get("dataSource") or "")
+                or "default_catalog"
+            )
 
             copy_mode = (dm.get("copyMode") or "Full") or "Full"
             load_type = "INCREMENTAL" if str(copy_mode).lower() == "incremental" else "FULL"
