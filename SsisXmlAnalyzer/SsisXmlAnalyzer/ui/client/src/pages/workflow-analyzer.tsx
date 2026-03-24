@@ -2425,23 +2425,6 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
-                    {/* Source Query for Source Components (includes queries resolved from SqlCommandVariable) */}
-                    {component.componentType === 'Source' && component.sourceMetadata?.sourceQuery && (
-                      <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-900 dark:text-blue-100 mb-2">
-                          📋 Source Query
-                          {component.sourceMetadata.sqlCommandVariableRef && (
-                            <span className="ml-2 text-xs font-normal normal-case text-blue-700 dark:text-blue-300">
-                              (from variable: {component.sourceMetadata.sqlCommandVariableRef})
-                            </span>
-                          )}
-                        </p>
-                        <pre className="text-xs font-mono text-foreground whitespace-pre-wrap break-words bg-background dark:bg-slate-900 p-3 rounded border border-border max-h-60 overflow-y-auto">
-                          {component.sourceMetadata.sourceQuery}
-                        </pre>
-                      </div>
-                    )}
-
                     {/* Referenced Tables for Source Components */}
                     {component.componentType === 'Source' && component.sourceMetadata?.referencedTables && component.sourceMetadata.referencedTables.length > 0 && (
                       <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md">
@@ -2493,19 +2476,57 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
-                    {/* Component Properties */}
+                    {/* Component Properties (SqlCommand shows resolved query from variable when direct SqlCommand is empty) */}
                     {component.properties.length > 0 && (
                       <div className="mb-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
                           Component Properties
                         </p>
                         <div className="space-y-2">
-                          {component.properties.slice(0, 5).map((prop, propIdx) => (
-                            <div key={propIdx} className="flex justify-between text-xs">
-                              <span className="text-muted-foreground">{prop.name}:</span>
-                              <span className="font-mono text-foreground">{String(prop.value)}</span>
-                            </div>
-                          ))}
+                          {component.properties.map((prop, propIdx) => {
+                            const isSqlCommand = prop.name === 'SqlCommand';
+                            const raw = String(prop.value ?? '');
+                            const resolved =
+                              component.componentType === 'Source' &&
+                              isSqlCommand &&
+                              !raw.trim() &&
+                              component.sourceMetadata?.sourceQuery
+                                ? component.sourceMetadata.sourceQuery
+                                : raw;
+                            const showPre =
+                              isSqlCommand && resolved.length > 80;
+                            return (
+                              <div
+                                key={propIdx}
+                                className={
+                                  showPre
+                                    ? 'flex flex-col gap-1 text-xs border-b border-border/60 pb-2 last:border-0'
+                                    : 'flex justify-between gap-2 text-xs border-b border-border/60 pb-2 last:border-0'
+                                }
+                              >
+                                <span className="text-muted-foreground shrink-0">
+                                  {prop.name}:
+                                  {component.componentType === 'Source' &&
+                                    prop.name === 'SqlCommand' &&
+                                    component.sourceMetadata?.sqlCommandVariableRef &&
+                                    !raw.trim() && (
+                                      <span className="ml-1 text-[10px] font-normal normal-case text-muted-foreground">
+                                        (from {component.sourceMetadata.sqlCommandVariableRef})
+                                      </span>
+                                    )}
+                                </span>
+                                {showPre ? (
+                                  <pre className="font-mono text-foreground whitespace-pre-wrap break-words bg-muted/50 dark:bg-slate-900 p-2 rounded border border-border max-h-60 overflow-y-auto text-[11px]">
+                                    {resolved}
+                                  </pre>
+                                ) : (
+                                  <span className="font-mono text-foreground text-right break-all min-w-0">
+                                    {resolved}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
