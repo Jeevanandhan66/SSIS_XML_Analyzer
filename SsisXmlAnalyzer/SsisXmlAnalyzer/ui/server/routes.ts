@@ -7,7 +7,6 @@ import fetch from "node-fetch";
 
 // Configure multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
-const API_URL = process.env.VITE_API_URL;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Proxy endpoint to forward XML parsing to Python FastAPI server
@@ -28,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Forward to Python FastAPI server
-      const response = await fetch(`https://ssis-xml-analyzer-i81j.onrender.com/api/parse-dtsx`, {
+      const response = await fetch('http://localhost:8000/api/parse-dtsx', {
         method: 'POST',
         body: formData,
         headers: formData.getHeaders(),
