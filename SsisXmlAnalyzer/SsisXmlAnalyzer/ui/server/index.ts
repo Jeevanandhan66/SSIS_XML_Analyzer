@@ -11,7 +11,7 @@ const app = express();
 // Check if Python server is running
 async function checkPythonServer() {
   try {
-    const response = await fetch('https://ssis-xml-analyzer-i81j.onrender.com//api/health');
+    const response = await fetch('https://ssis-xml-analyzer-i81j.onrender.com/api/health');
     if (response.ok) {
       log("✓ Python FastAPI server is running on port 8000");
       return true;
