@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +35,7 @@ export default function WorkflowAnalyzer() {
   const [unityCatalogNotebooks, setUnityCatalogNotebooks] = useState<Record<string, string> | null>(null);
   const [cliCommands, setCliCommands] = useState<Array<{ pipeline_file: string; job_file: string; pipeline_cmd: string; job_cmd: string; table_key: string }> | null>(null);
   const [isLoadingUnityCatalog, setIsLoadingUnityCatalog] = useState(false);
+  const [columnInventoryMode, setColumnInventoryMode] = useState<"by-component" | "global">("by-component");
   const { toast } = useToast();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +55,7 @@ export default function WorkflowAnalyzer() {
         setConversionSummary(null);
         setUnityCatalogSql(null);
         setUnityCatalogNotebooks(null);
+        setColumnInventoryMode("by-component");
         setSelectedFile(file);
       } else {
         toast({
@@ -82,6 +85,7 @@ export default function WorkflowAnalyzer() {
       setConversionSummary(null);
       setUnityCatalogSql(null);
       setUnityCatalogNotebooks(null);
+      setColumnInventoryMode("by-component");
       setSelectedFile(file);
     } else {
       toast({
@@ -183,6 +187,7 @@ export default function WorkflowAnalyzer() {
     setConversionSummary(null);
     setUnityCatalogSql(null);
     setUnityCatalogNotebooks(null);
+    setColumnInventoryMode("by-component");
     // Reset file input so the same file can be selected again
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     if (fileInput) {
@@ -781,6 +786,96 @@ export default function WorkflowAnalyzer() {
                               </CardContent>
                             )}
                           </Card>
+
+                          {/* Data flow column inventory (pipeline XML only) */}
+                          {parsedData.dataFlowColumnInventory &&
+                            parsedData.dataFlowColumnInventory.dataFlowTasks.length > 0 && (
+                            <Card className="mb-6">
+                              <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                  <GitBranch className="w-5 h-5 text-primary" />
+                                  Data flow columns
+                                </CardTitle>
+                                <CardDescription>
+                                  Column names from pipeline metadata only: source outputs, transformation outputs, and
+                                  destination input mappings. Raw SQL text, error outputs, and unmapped target columns are
+                                  excluded.
+                                </CardDescription>
+                                <ToggleGroup
+                                  type="single"
+                                  value={columnInventoryMode}
+                                  onValueChange={(v) => {
+                                    if (v === "by-component" || v === "global") setColumnInventoryMode(v);
+                                  }}
+                                  className="justify-start pt-2"
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  <ToggleGroupItem value="by-component" aria-label="By task and component">
+                                    By task &amp; component
+                                  </ToggleGroupItem>
+                                  <ToggleGroupItem value="global" aria-label="Global unique list">
+                                    Global column list
+                                  </ToggleGroupItem>
+                                </ToggleGroup>
+                              </CardHeader>
+                              <CardContent>
+                                {columnInventoryMode === "global" ? (
+                                  <div>
+                                    <p className="text-xs text-muted-foreground mb-3">
+                                      {parsedData.dataFlowColumnInventory.globalUniqueColumns.length} unique names
+                                      (case-insensitive dedupe across the package).
+                                    </p>
+                                    <ScrollArea className="h-[min(24rem,50vh)] rounded-md border border-border bg-muted/20 p-3">
+                                      <ul className="text-xs font-mono text-foreground space-y-1 columns-1 sm:columns-2 sm:gap-x-8">
+                                        {parsedData.dataFlowColumnInventory.globalUniqueColumns.map((col) => (
+                                          <li key={col} className="break-all py-0.5">
+                                            {col}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </ScrollArea>
+                                  </div>
+                                ) : (
+                                  <ScrollArea className="h-[min(28rem,55vh)] pr-3">
+                                    <div className="space-y-5">
+                                      {parsedData.dataFlowColumnInventory.dataFlowTasks.map((task) => (
+                                        <div key={task.taskId} className="border border-border rounded-lg p-4 bg-muted/20">
+                                          <p className="text-sm font-semibold text-foreground mb-3">{task.taskName}</p>
+                                          <div className="space-y-4 pl-2 ml-1 border-l-2 border-primary/30">
+                                            {task.components.map((comp) => (
+                                              <div key={comp.componentId || `${task.taskId}-${comp.componentName}`}>
+                                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                                  <Badge variant="secondary" className="text-[10px] uppercase">
+                                                    {comp.componentType}
+                                                  </Badge>
+                                                  <span className="text-sm font-medium text-foreground">
+                                                    {comp.componentName}
+                                                  </span>
+                                                  {comp.componentTypeName && comp.componentTypeName !== comp.componentName && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                      ({comp.componentTypeName})
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <ul className="list-none text-xs font-mono text-foreground space-y-1 pl-2">
+                                                  {comp.columns.map((col) => (
+                                                    <li key={col} className="flex gap-2 before:content-['–'] before:text-muted-foreground">
+                                                      <span className="break-all">{col}</span>
+                                                    </li>
+                                                  ))}
+                                                </ul>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </ScrollArea>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
 
                           {/* Package-wide referenced tables (all SQL: Execute SQL, Data Flow) */}
                           {parsedData.packageReferencedTables && parsedData.packageReferencedTables.length > 0 && (
@@ -2531,8 +2626,41 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
-                    {/* Input Columns */}
-                    {component.inputColumns.length > 0 && (
+                    {/* Pipeline columns (metadata-only; excludes error outputs and raw SQL) */}
+                    {component.executionColumnInventory && component.executionColumnInventory.columns.length > 0 && (
+                      <div className="mb-3 p-3 rounded-md border border-primary/20 bg-primary/5">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-foreground mb-1">
+                          Pipeline columns ({component.executionColumnInventory.columns.length})
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mb-2">
+                          {component.componentType === "Destination"
+                            ? "Mapped columns loaded to the destination (from input wiring)."
+                            : component.componentType === "Source"
+                              ? "Output columns from the source (non-error output)."
+                              : "Output columns from this transformation (non-error outputs)."}
+                        </p>
+                        <ul className="text-xs font-mono text-foreground space-y-1 max-h-56 overflow-y-auto">
+                          {component.executionColumnInventory.columns.map((col) => {
+                            const lineage = component.executionColumnInventory?.columnsWithLineage?.find(
+                              (r) => r.name === col
+                            );
+                            return (
+                              <li
+                                key={col}
+                                className="break-all border-b border-border/40 pb-1 last:border-0"
+                                title={lineage?.lineageId ? `Lineage: ${lineage.lineageId}` : undefined}
+                              >
+                                {col}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Raw XML column tables — only when pipeline inventory is unavailable */}
+                    {(!component.executionColumnInventory || component.executionColumnInventory.columns.length === 0) &&
+                      component.inputColumns.length > 0 && (
                       <div className="mb-3">
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
                           Input Columns ({component.inputColumns.length})
@@ -2562,8 +2690,8 @@ function ActivityDetailView({ activity, onBack }: { activity: Activity; onBack: 
                       </div>
                     )}
 
-                    {/* Output Columns */}
-                    {component.outputColumns.length > 0 && (
+                    {(!component.executionColumnInventory || component.executionColumnInventory.columns.length === 0) &&
+                      component.outputColumns.length > 0 && (
                       <div>
                         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
                           Output Columns ({component.outputColumns.length})

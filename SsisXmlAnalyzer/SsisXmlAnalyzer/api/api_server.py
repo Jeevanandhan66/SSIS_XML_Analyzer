@@ -681,6 +681,122 @@ def parse_column_mappings(columns_element, is_input: bool = True) -> List[Dict[s
     return columns
 
 
+# --- Data flow column inventory (pipeline XML only; no SQL text parsing) ---
+_SSIS_ERROR_AUDIT_COLUMN_NAMES = frozenset({
+    'ErrorCode', 'ErrorColumn', 'ErrorMessage', 'ErrorDescription',
+})
+
+
+def _normalize_ssis_column_name(name: str) -> str:
+    """Trim, strip surrounding brackets once; SSIS output names are already aliases where applicable."""
+    if not name or not isinstance(name, str):
+        return ''
+    s = name.strip()
+    while s.startswith('[') and s.endswith(']') and len(s) > 1:
+        s = s[1:-1].strip()
+    return s
+
+
+def _pipeline_output_is_error_output(output_elem) -> bool:
+    if output_elem is None:
+        return False
+    v = (output_elem.get('isErrorOut') or output_elem.get('isErrorOutput') or '').strip().lower()
+    if v == 'true':
+        return True
+    return False
+
+
+def extract_execution_columns_from_pipeline_component(comp, comp_type: str) -> Dict[str, Any]:
+    """
+    Column names used in the data flow for this component, from pipeline XML only.
+    - Source / Transformation: outputColumn names on non-error outputs (deduped).
+    - Destination: mapped columns from input externalMetadataColumn (preferred) or inputColumn.
+    Does not parse SqlCommand or other SQL text.
+    """
+    ordered_names: List[str] = []
+    seen: Set[str] = set()
+    lineage_rows: List[Dict[str, Any]] = []
+
+    def _add(name: str, lineage_id: Optional[str] = None) -> None:
+        n = _normalize_ssis_column_name(name)
+        if not n or n in _SSIS_ERROR_AUDIT_COLUMN_NAMES:
+            return
+        if n not in seen:
+            seen.add(n)
+            ordered_names.append(n)
+            lineage_rows.append({
+                'name': n,
+                'lineageId': lineage_id.strip() if lineage_id else None,
+            })
+
+    if comp_type == 'Destination':
+        # Prefer inputColumn (wired from pipeline = actually loaded). External metadata may list full table.
+        for inp in comp.findall('inputs/input'):
+            ic = inp.find('inputColumns')
+            if ic is not None:
+                for col in ic.findall('inputColumn'):
+                    _add(col.get('name') or '', col.get('lineageId'))
+        if not ordered_names:
+            for inp in comp.findall('inputs/input'):
+                emc = inp.find('externalMetadataColumns')
+                if emc is None:
+                    continue
+                for em in emc.findall('externalMetadataColumn'):
+                    _add(em.get('name') or '', em.get('lineageId'))
+    else:
+        for out in comp.findall('outputs/output'):
+            if _pipeline_output_is_error_output(out):
+                continue
+            oc = out.find('outputColumns')
+            if oc is None:
+                continue
+            for col in oc.findall('outputColumn'):
+                _add(col.get('name') or '', col.get('lineageId'))
+
+    return {
+        'columns': ordered_names,
+        'columnsWithLineage': lineage_rows,
+    }
+
+
+def aggregate_package_data_flow_column_inventory(activities: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Build per-task component column lists and a package-wide deduplicated column list (case-insensitive)."""
+    data_flow_tasks: List[Dict[str, Any]] = []
+    global_by_lower: Dict[str, str] = {}
+
+    for act in activities:
+        if act.get('type') != 'Data Flow Task' or not act.get('components'):
+            continue
+        comps: List[Dict[str, Any]] = []
+        for c in act['components']:
+            inv = c.get('executionColumnInventory') or {}
+            cols: List[str] = inv.get('columns') or []
+            detail: List[Dict[str, Any]] = inv.get('columnsWithLineage') or []
+            for col in cols:
+                lk = col.lower()
+                if lk not in global_by_lower:
+                    global_by_lower[lk] = col
+            comps.append({
+                'componentName': c.get('name', ''),
+                'componentType': c.get('componentType', ''),
+                'componentTypeName': c.get('componentTypeName', ''),
+                'componentId': c.get('id', ''),
+                'columns': cols,
+                'columnsWithLineage': detail,
+            })
+        data_flow_tasks.append({
+            'taskId': act.get('id', ''),
+            'taskName': act.get('name', ''),
+            'components': comps,
+        })
+
+    global_unique = sorted(global_by_lower.values(), key=lambda s: s.lower())
+    return {
+        'dataFlowTasks': data_flow_tasks,
+        'globalUniqueColumns': global_unique,
+    }
+
+
 # FR-3/FR-4: SSIS component class ID to friendly name and PySpark equivalent
 COMPONENT_TYPE_MAP = {
     'Microsoft.OLEDBSource': ('OLE DB Source', 'Source', None),
@@ -689,6 +805,7 @@ COMPONENT_TYPE_MAP = {
     'Microsoft.ADONETDestination': ('ADO.NET Destination', 'Destination', None),
     'Microsoft.FlatFileSource': ('Flat File Source', 'Source', None),
     'Microsoft.FlatFileDestination': ('Flat File Destination', 'Destination', None),
+    'Attunity.SSISOraSrc': ('Oracle Source (Attunity)', 'Source', None),
     'Microsoft.DerivedColumn': ('Derived Column', 'Transformation', 'withColumn'),
     'Microsoft.Lookup': ('Lookup', 'Transformation', 'join'),
     'Microsoft.Aggregate': ('Aggregate', 'Transformation', 'groupBy'),
@@ -794,6 +911,12 @@ def parse_data_flow_components(
         comp_class = comp.get('componentClassID', '')
         description = comp.get('description', '')
         
+        user_component_type_name = ''
+        for p in comp.findall('.//properties/property') or []:
+            if (p.get('name') or '').strip() == 'UserComponentTypeName':
+                user_component_type_name = (p.text or '').strip()
+                break
+        
         # FR-3: Resolve component type from class ID (friendly name, category, PySpark equivalent)
         type_info = COMPONENT_TYPE_MAP.get(comp_class)
         if type_info:
@@ -806,6 +929,17 @@ def parse_data_flow_components(
             else:
                 comp_type, friendly_name = 'Transformation', comp_class.split('.')[-1] if '.' in comp_class else comp_class
                 pyspark_equivalent = None
+        
+        # Hosted/custom components (e.g. ZappySys): refine Source/Destination from name or UserComponentTypeName
+        if comp_class == 'Microsoft.ManagedComponentHost':
+            lname = (comp_name or '').lower()
+            luct = user_component_type_name.lower()
+            if 'destination' in lname or 'destination' in luct:
+                comp_type = 'Destination'
+                friendly_name = comp_name or friendly_name
+            elif 'source' in lname or 'source' in luct:
+                comp_type = 'Source'
+                friendly_name = comp_name or friendly_name
         
         # FR-3: Flag Script Task / ManagedComponentHost for manual review
         requires_manual_review = comp_class in REQUIRES_MANUAL_REVIEW_COMPONENTS
@@ -965,6 +1099,8 @@ def parse_data_flow_components(
                 )
             if ref_tables:
                 component['transformationLogic']['referencedTables'] = ref_tables
+        
+        component['executionColumnInventory'] = extract_execution_columns_from_pipeline_component(comp, comp_type)
         
         components.append(component)
     
@@ -2585,6 +2721,9 @@ async def parse_dtsx(
         # Calculate component summary (activity types and data flow component types)
         component_summary = calculate_component_summary(activities)
         
+        # Pipeline-only column inventory (sources, transformation outputs, destination mappings)
+        data_flow_column_inventory = aggregate_package_data_flow_column_inventory(activities)
+        
         # FR-2+: Build connections usage map to show where each connection is used
         connections_usage_map = build_connections_usage_map(activities, connection_managers)
         
@@ -2603,6 +2742,7 @@ async def parse_dtsx(
             'activityFlowGraph': activity_flow_graph,
             'containers': containers,
             'componentSummary': component_summary,
+            'dataFlowColumnInventory': data_flow_column_inventory,
             'packageReferencedTables': pkg_ref_tables['packageReferencedTables'],
             'packageReferencedTablesDetailed': pkg_ref_tables['packageReferencedTablesDetailed'],
         }

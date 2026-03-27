@@ -1,0 +1,2224 @@
+﻿<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="7/26/2016 9:03:11 AM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="US8460-957"
+  DTS:CreatorName="LEVEL3\braaten.joey"
+  DTS:DTSID="{8B2C75D8-EED1-49FF-916B-3A95F07CCED6}"
+  DTS:EnableConfig="True"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="13.0.2165.0"
+  DTS:LocaleID="1033"
+  DTS:ObjectName="BIRA_SA_CASE_COMM_TIME"
+  DTS:PackageType="5"
+  DTS:ProtectionLevel="2"
+  DTS:VersionBuild="324"
+  DTS:VersionGUID="{4FD6F265-A58C-4E2B-B094-6D2AACC3075A}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{4EB7060E-33E2-469E-B9AD-0EFC3BAC9989}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="max_dw_last_modify_dt">
+      <DTS:VariableValue
+        DTS:DataType="7">1/1/1900</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{4DB0A080-D561-4885-A948-D7C3F89868E9}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="max_opp_window_load_date">
+      <DTS:VariableValue
+        DTS:DataType="7">1/1/1900</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{7050065D-F038-4976-9D93-3893DEAABF8A}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;WITH Union_CTE as&#xA;/* Merge together comm records and ubc status start records.  Only include the first UBC record (ubc_order = 1). &#xA;&#x9;A new window will start with the first UBC status.*/&#xA;(&#xA;SELECT d.case_id&#xA;&#x9;,comm_time_objid&#xA;&#x9;,null as ubc_status_id&#xA;&#x9;,cast(dateadd(minute, datediff(minute, 0, note_creation_time), 0) AS SMALLDATETIME) as note_creation_time&#xA;&#x9;,default_sla_duration_secs&#xA;&#x9;,next_update_duration_secs&#xA;&#x9;,next_update&#xA;&#x9;,case&#xA;&#x9;&#x9;when next_update in ('None Currently Planned','Awaiting Customer Reply','Ticket set to Auto Close','Ticket Closed')&#xA;&#x9;&#x9;&#x9;then null --convert(datetime, '2079-06-06', 120)  &#xA;&#x9;&#x9;else convert(datetime, convert(nchar(16), next_update, 120), 120)&#xA;&#x9;&#x9;end as next_update_time&#xA;FROM dbo.case_variable_comm_detail d&#xA;INNER JOIN dbo.TSC_METRIC_MAIN c&#xA;&#x9;ON c.case_id = d.case_id AND c.case_type='Customer Trouble' AND c.case_open_dt &gt;= '2016/07/17' &#xA;&#x9;&#x9;AND c.case_close_dt &gt;= '&quot; + (DT_WSTR, 30) @[User::max_opp_window_load_date] + &quot;'&#xA;&#x9;&#xA;)&#xA;&#xA;SELECT case_id&#xA;&#x9;, comm_time_objid&#xA;&#x9;, ubc_status_id&#xA;&#x9;, note_creation_time&#xA;&#x9;, default_sla_duration_secs&#xA;&#x9;, next_update_duration_secs&#xA;&#x9;, next_update&#xA;&#x9;, case&#xA;&#x9;&#x9;when DATEDIFF(minute, note_creation_time, next_update_time) &lt; 1 &#xA;&#x9;&#x9;&#x9;then null&#xA;&#x9;&#x9;&#x9;else next_update_time&#xA;&#x9;&#x9;end as next_update_time&#xA;&#x9;, case&#xA;&#x9;&#x9;when next_update_time is null &#xA;&#x9;&#x9;&#x9;then 'System Pause'&#xA;&#x9;&#x9;when DATEDIFF(minute, note_creation_time, next_update_time) &lt; 1 &#xA;&#x9;&#x9;&#x9;then 'Data Quality Pause'  &#xA;&#x9;&#x9;&#x9;else 'Not a Pause'&#xA;&#x9;&#x9;end as pause_type&#xA;&#x9;, ROW_NUMBER() OVER(PARTITION BY case_id ORDER BY note_creation_time, comm_time_objid) as case_comm_order&#xA;&#x9;, DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE())) as bira_load_date&#xA;FROM Union_CTE&quot;"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="sqlLoadCaseCommControlStage">
+      <DTS:VariableValue
+        DTS:DataType="8">WITH Union_CTE as
+/* Merge together comm records and ubc status start records.  Only include the first UBC record (ubc_order = 1). 
+	A new window will start with the first UBC status.*/
+(
+SELECT d.case_id
+	,comm_time_objid
+	,null as ubc_status_id
+	,cast(dateadd(minute, datediff(minute, 0, note_creation_time), 0) AS SMALLDATETIME) as note_creation_time
+	,default_sla_duration_secs
+	,next_update_duration_secs
+	,next_update
+	,case
+		when next_update in ('None Currently Planned','Awaiting Customer Reply','Ticket set to Auto Close','Ticket Closed')
+			then null --convert(datetime, '2079-06-06', 120)  
+		else convert(datetime, convert(nchar(16), next_update, 120), 120)
+		end as next_update_time
+FROM dbo.case_variable_comm_detail d
+INNER JOIN dbo.TSC_METRIC_MAIN c
+	ON c.case_id = d.case_id AND c.case_type='Customer Trouble' AND c.case_open_dt &gt;= '2016/07/17' 
+		AND c.case_close_dt &gt;= '1/1/1900'
+	
+)
+
+SELECT case_id
+	, comm_time_objid
+	, ubc_status_id
+	, note_creation_time
+	, default_sla_duration_secs
+	, next_update_duration_secs
+	, next_update
+	, case
+		when DATEDIFF(minute, note_creation_time, next_update_time) &lt; 1 
+			then null
+			else next_update_time
+		end as next_update_time
+	, case
+		when next_update_time is null 
+			then 'System Pause'
+		when DATEDIFF(minute, note_creation_time, next_update_time) &lt; 1 
+			then 'Data Quality Pause'  
+			else 'Not a Pause'
+		end as pause_type
+	, ROW_NUMBER() OVER(PARTITION BY case_id ORDER BY note_creation_time, comm_time_objid) as case_comm_order
+	, DATEADD(dd, 0, DATEDIFF(dd, 0, GETDATE())) as bira_load_date
+FROM Union_CTE</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{11B9DE25-A06C-48D2-BBD6-D5AD0CA51A93}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;;with new_notes_cte as &#xA;(&#xA;select comm_time_objid&#xA;&#x9;, creation_time&#xA;&#x9;, sla_duration&#xA;&#x9;, next_update_duration&#xA;&#x9;, next_update&#xA;&#x9;, case_objid&#xA;&#x9;, note_objid&#xA;&#x9;, user_objid&#xA;&#x9;, dw_last_modify_dt&#xA;from dbo.case_comm_time_stage&#xA;where dw_last_modify_dt &gt;=  '&quot; + (DT_WSTR, 30) @[User::max_dw_last_modify_dt] + &quot;'&#xA;)&#xA;&#xA;, case_note_union_cte&#xA;as&#xA;(&#xA;select comm_time_objid&#xA;&#x9;, creation_time&#xA;&#x9;, sla_duration&#xA;&#x9;, next_update_duration&#xA;&#x9;, next_update&#xA;&#x9;, case_objid&#xA;&#x9;, note_objid&#xA;&#x9;, user_objid&#xA;&#x9;, dw_last_modify_dt&#xA;from new_notes_cte&#xA;&#xA;union&#xA;&#xA;select comm_time_objid&#xA;&#x9;, note_creation_time&#xA;&#x9;, default_sla_duration_secs&#xA;&#x9;, next_update_duration_secs&#xA;&#x9;, next_update&#xA;&#x9;, case_objid&#xA;&#x9;, note_objid&#xA;&#x9;, user_objid&#xA;&#x9;, dw_last_modify_dt&#xA;from dbo.case_variable_comm_detail d&#xA;where dateadd(dd, 0, datediff(dd, 0, dw_last_modify_dt)) &lt;  '&quot; + (DT_WSTR, 30) @[User::max_dw_last_modify_dt] + &quot;'&#xA;&#x9;and exists (select 1&#xA;&#x9;&#x9;&#x9;&#x9;from new_notes_cte&#xA;&#x9;&#x9;&#x9;&#x9;where case_objid = d.case_objid)&#xA;)&#xA;&#xA;, workgroup_cte as&#xA;(&#xA;select Field_Name&#xA;&#x9;, Value&#xA;&#x9;, Wrk_Grp_Region&#xA;&#x9;, Wrk_Grp_Technology&#xA;&#x9;, Mod_Dt&#xA;&#x9;, [Grouping]&#xA;&#x9;, ROW_NUMBER() OVER (PARTITION BY Field_Name ORDER BY Mod_Dt DESC) AS row_count&#xA;from dbo.CLARSUPP_TABLE_WFM_REGION_TECHNOLOGY&#xA;where [Grouping] = 'Work_Group_Region_Vertical'&#xA;)&#xA;&#xA;SELECT t.comm_time_objid&#xA;&#x9;, t.case_objid&#xA;&#x9;, c.case_id&#xA;&#x9;, c.case_type&#xA;&#x9;, t.CREATION_TIME as note_creation_time&#xA;&#x9;, t.SLA_DURATION as default_sla_duration_secs&#xA;&#x9;, t.NEXT_UPDATE_DURATION as next_update_duration_secs&#xA;&#x9;, t.next_update&#xA;&#x9;, t.note_objid&#xA;&#x9;, t.user_objid&#xA;&#x9;, e.x_nt_login_id as user_nt_login_id&#xA;&#x9;, u.LOGIN_NAME as user_login_name&#xA;&#x9;, e.last_name as user_first_name&#xA;&#x9;, e.first_name as user_last_name&#xA;&#x9;, e.work_group as user_work_group&#xA;&#x9;, gal_sup.FULL_NAME as user_supervisor_name&#xA;&#x9;, wrt.Wrk_Grp_Technology as user_work_group_technology&#xA;&#x9;, wrt.Wrk_Grp_Region as user_work_group_region&#xA;&#x9;, row_number() over (partition by c.case_id order by t.comm_time_objid) as case_comm_order&#xA;&#x9;, LAG(t.CREATION_TIME,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_note_creation_time&#xA;&#x9;, LAG(t.NEXT_UPDATE,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_next_update&#xA;&#x9;, LAG(t.NEXT_UPDATE_DURATION,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_next_update_duration_secs&#xA;&#x9;, LEAD(t.CREATION_TIME,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_note_creation_time&#xA;&#x9;, LEAD(t.NEXT_UPDATE,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_next_update&#xA;&#x9;, LEAD(t.NEXT_UPDATE_DURATION,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_next_update_duration_secs&#xA;&#x9;, CASE WHEN t.SLA_DURATION &lt;&gt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override&#xA;&#x9;, CASE WHEN t.SLA_DURATION &lt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_more&#xA;&#x9;, CASE WHEN t.SLA_DURATION &gt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_less&#xA;&#x9;, CASE WHEN t.NEXT_UPDATE = 'Awaiting Customer Reply' THEN 1 ELSE 0 END as awaiting_cust_reply_update&#xA;&#x9;, CASE WHEN t.NEXT_UPDATE = 'None Currently Planned' THEN 1 ELSE 0 END as none_currently_planned_update&#xA;&#x9;, CASE WHEN t.NEXT_UPDATE = 'Ticket set to Auto Close' THEN 1 ELSE 0 END as ticket_auto_close_update&#xA;&#x9;, CASE WHEN t.NEXT_UPDATE = 'Ticket Closed' THEN 1 ELSE 0 END as ticket_close_update&#xA;&#x9;, t.DW_LAST_MODIFY_DT&#xA;FROM case_note_union_cte t&#xA;INNER JOIN dbo.GNOC_METRIC_MAIN_COMBINED c&#xA;&#x9;ON t.CASE_OBJID = c.CASE_OBJID&#xA;LEFT OUTER JOIN dbo.CLARSUPP_TABLE_EMPLOYEE e&#xA;&#x9;ON t.USER_OBJID = e.employee2user&#xA;LEFT OUTER JOIN dbo.CLARSUPP_TABLE_USER u&#xA;&#x9;ON e.employee2user = u.OBJID&#xA;LEFT OUTER JOIN workgroup_cte wrt&#xA;&#x9;ON e.work_group = wrt.Field_Name and wrt.row_count = 1&#xA;LEFT OUTER JOIN dbo.GALCapture gal_tech&#xA;&#x9;ON gal_tech.NT_LOGIN = e.x_nt_login_id&#xA;LEFT OUTER JOIN dbo.GALCapture gal_sup&#xA;&#x9;ON gal_tech.supervisor_person_id = gal_sup.PERSON_ID&quot;"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="sqlLoadCaseVarCommDetStage">
+      <DTS:VariableValue
+        DTS:DataType="8">;with new_notes_cte as 
+(
+select comm_time_objid
+	, creation_time
+	, sla_duration
+	, next_update_duration
+	, next_update
+	, case_objid
+	, note_objid
+	, user_objid
+	, dw_last_modify_dt
+from dbo.case_comm_time_stage
+where dw_last_modify_dt &gt;=  '1/1/1900'
+)
+
+, case_note_union_cte
+as
+(
+select comm_time_objid
+	, creation_time
+	, sla_duration
+	, next_update_duration
+	, next_update
+	, case_objid
+	, note_objid
+	, user_objid
+	, dw_last_modify_dt
+from new_notes_cte
+
+union
+
+select comm_time_objid
+	, note_creation_time
+	, default_sla_duration_secs
+	, next_update_duration_secs
+	, next_update
+	, case_objid
+	, note_objid
+	, user_objid
+	, dw_last_modify_dt
+from dbo.case_variable_comm_detail d
+where dateadd(dd, 0, datediff(dd, 0, dw_last_modify_dt)) &lt;  '1/1/1900'
+	and exists (select 1
+				from new_notes_cte
+				where case_objid = d.case_objid)
+)
+
+, workgroup_cte as
+(
+select Field_Name
+	, Value
+	, Wrk_Grp_Region
+	, Wrk_Grp_Technology
+	, Mod_Dt
+	, [Grouping]
+	, ROW_NUMBER() OVER (PARTITION BY Field_Name ORDER BY Mod_Dt DESC) AS row_count
+from dbo.CLARSUPP_TABLE_WFM_REGION_TECHNOLOGY
+where [Grouping] = 'Work_Group_Region_Vertical'
+)
+
+SELECT t.comm_time_objid
+	, t.case_objid
+	, c.case_id
+	, c.case_type
+	, t.CREATION_TIME as note_creation_time
+	, t.SLA_DURATION as default_sla_duration_secs
+	, t.NEXT_UPDATE_DURATION as next_update_duration_secs
+	, t.next_update
+	, t.note_objid
+	, t.user_objid
+	, e.x_nt_login_id as user_nt_login_id
+	, u.LOGIN_NAME as user_login_name
+	, e.last_name as user_first_name
+	, e.first_name as user_last_name
+	, e.work_group as user_work_group
+	, gal_sup.FULL_NAME as user_supervisor_name
+	, wrt.Wrk_Grp_Technology as user_work_group_technology
+	, wrt.Wrk_Grp_Region as user_work_group_region
+	, row_number() over (partition by c.case_id order by t.comm_time_objid) as case_comm_order
+	, LAG(t.CREATION_TIME,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_note_creation_time
+	, LAG(t.NEXT_UPDATE,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_next_update
+	, LAG(t.NEXT_UPDATE_DURATION,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as prev_next_update_duration_secs
+	, LEAD(t.CREATION_TIME,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_note_creation_time
+	, LEAD(t.NEXT_UPDATE,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_next_update
+	, LEAD(t.NEXT_UPDATE_DURATION,1,NULL) OVER (partition by c.CASE_ID order by t.CREATION_TIME) as sub_next_update_duration_secs
+	, CASE WHEN t.SLA_DURATION &lt;&gt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override
+	, CASE WHEN t.SLA_DURATION &lt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_more
+	, CASE WHEN t.SLA_DURATION &gt; t.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_less
+	, CASE WHEN t.NEXT_UPDATE = 'Awaiting Customer Reply' THEN 1 ELSE 0 END as awaiting_cust_reply_update
+	, CASE WHEN t.NEXT_UPDATE = 'None Currently Planned' THEN 1 ELSE 0 END as none_currently_planned_update
+	, CASE WHEN t.NEXT_UPDATE = 'Ticket set to Auto Close' THEN 1 ELSE 0 END as ticket_auto_close_update
+	, CASE WHEN t.NEXT_UPDATE = 'Ticket Closed' THEN 1 ELSE 0 END as ticket_close_update
+	, t.DW_LAST_MODIFY_DT
+FROM case_note_union_cte t
+INNER JOIN dbo.GNOC_METRIC_MAIN_COMBINED c
+	ON t.CASE_OBJID = c.CASE_OBJID
+LEFT OUTER JOIN dbo.CLARSUPP_TABLE_EMPLOYEE e
+	ON t.USER_OBJID = e.employee2user
+LEFT OUTER JOIN dbo.CLARSUPP_TABLE_USER u
+	ON e.employee2user = u.OBJID
+LEFT OUTER JOIN workgroup_cte wrt
+	ON e.work_group = wrt.Field_Name and wrt.row_count = 1
+LEFT OUTER JOIN dbo.GALCapture gal_tech
+	ON gal_tech.NT_LOGIN = e.x_nt_login_id
+LEFT OUTER JOIN dbo.GALCapture gal_sup
+	ON gal_tech.supervisor_person_id = gal_sup.PERSON_ID</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{10DF78CB-6BF6-44C9-B14F-9B8EAFAF1E38}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vAgentJobID">
+      <DTS:VariableValue
+        DTS:DataType="8"
+        xml:space="preserve"></DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{24B8C62B-96FF-4EDC-9260-E20AFBA36BC4}"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vAgentJobName">
+      <DTS:VariableValue
+        DTS:DataType="8">'Manual Run'</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{D8DD871B-B177-4645-8D7C-02CB267014E4}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="&quot;select ct.w_case_comm_time_key_id&#xA;    , ct.comm_time_objid&#xA;    , ct.creation_time&#xA;    , ct.sla_duration&#xA;    , ct.next_update_duration&#xA;    , ct.next_update&#xA;    , ct.case_objid&#xA;    , ct.note_objid&#xA;    , ct.user_objid&#xA;    , ct.dw_create_dt&#xA;    , ct.dw_last_modify_dt&#xA;    , ct.dw_source_system_cd&#xA;    , CASE WHEN ct.SLA_DURATION &lt;&gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override&#xA;&#x9;, CASE WHEN ct.SLA_DURATION &lt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_more&#xA;&#x9;, CASE WHEN ct.SLA_DURATION &gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_less&#xA;&#x9;, CASE WHEN ct.NEXT_UPDATE = 'Awaiting Customer Reply' THEN 1 ELSE 0 END as awaiting_cust_reply_update&#xA;&#x9;, CASE WHEN ct.NEXT_UPDATE = 'None Currently Planned' THEN 1 ELSE 0 END as none_currently_planned_update&#xA;&#x9;, CASE WHEN ct.NEXT_UPDATE in ('Ticket Set to Auto Close','Ticket set to Auto Close')  THEN 1 ELSE 0 END as ticket_auto_close_update&#xA;&#x9;, CASE WHEN ct.NEXT_UPDATE = 'Ticket Closed' THEN 1 ELSE 0 END as ticket_close_update&#xA;    ,sysdate as created_date &#xA;    ,nvl(c.dw_secure_company_nbr,0) dw_secure_company_nbr&#xA;from dsl_sm.w_case_comm_time ct &#xA;inner join dsl_sm.w_case c&#xA;    on c.case_objid=ct.case_objid&#xA;    and c.reporting_type='Opened'&#xA;where trunc(ct.dw_last_modify_dt) &gt;= to_date('&quot; + (dt_wstr, 30) @[User::vMxDt] + &quot;','mm/dd/yyyy HH:MI:SS AM')&quot;"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vBaseCommQuery">
+      <DTS:VariableValue
+        DTS:DataType="8">select ct.w_case_comm_time_key_id
+    , ct.comm_time_objid
+    , ct.creation_time
+    , ct.sla_duration
+    , ct.next_update_duration
+    , ct.next_update
+    , ct.case_objid
+    , ct.note_objid
+    , ct.user_objid
+    , ct.dw_create_dt
+    , ct.dw_last_modify_dt
+    , ct.dw_source_system_cd
+    , CASE WHEN ct.SLA_DURATION &lt;&gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override
+	, CASE WHEN ct.SLA_DURATION &lt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_more
+	, CASE WHEN ct.SLA_DURATION &gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_less
+	, CASE WHEN ct.NEXT_UPDATE = 'Awaiting Customer Reply' THEN 1 ELSE 0 END as awaiting_cust_reply_update
+	, CASE WHEN ct.NEXT_UPDATE = 'None Currently Planned' THEN 1 ELSE 0 END as none_currently_planned_update
+	, CASE WHEN ct.NEXT_UPDATE in ('Ticket Set to Auto Close','Ticket set to Auto Close')  THEN 1 ELSE 0 END as ticket_auto_close_update
+	, CASE WHEN ct.NEXT_UPDATE = 'Ticket Closed' THEN 1 ELSE 0 END as ticket_close_update
+    ,sysdate as created_date 
+    ,nvl(c.dw_secure_company_nbr,0) dw_secure_company_nbr
+from dsl_sm.w_case_comm_time ct 
+inner join dsl_sm.w_case c
+    on c.case_objid=ct.case_objid
+    and c.reporting_type='Opened'
+where trunc(ct.dw_last_modify_dt) &gt;= to_date('1/1/1900','mm/dd/yyyy HH:MI:SS AM')</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{22307F8C-3767-4D5D-AF81-D632BC46CE68}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="vMxDt">
+      <DTS:VariableValue
+        DTS:DataType="7">1/1/1900</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{B32EB5E6-1E3D-416A-8B5A-46989CDB8B5E}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[System::PackageName]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="vProcessName">
+      <DTS:VariableValue
+        DTS:DataType="8">BIRA_SA_CASE_COMM_TIME</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:LoggingOptions
+    DTS:FilterKind="0"
+    DTS:LoggingMode="1">
+    <DTS:Property
+      DTS:DataType="8"
+      DTS:Name="EventFilter">7,22,PipelineInitialization,18,OnPipelineRowsSent,24,OnPipelinePrePrimeOutput,25,OnPipelinePostPrimeOutput,24,OnPipelinePreEndOfRowset,25,OnPipelinePostEndOfRowset,7,OnError</DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnError"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePostEndOfRowset"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePostPrimeOutput"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePreEndOfRowset"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelinePrePrimeOutput"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="OnPipelineRowsSent"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+    <DTS:Property
+      DTS:EventName="PipelineInitialization"
+      DTS:Name="ColumnFilter">
+      <DTS:Property
+        DTS:Name="Computer">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="Operator">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceName">0</DTS:Property>
+      <DTS:Property
+        DTS:Name="SourceID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="ExecutionID">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="MessageText">-1</DTS:Property>
+      <DTS:Property
+        DTS:Name="DataBytes">0</DTS:Property>
+    </DTS:Property>
+  </DTS:LoggingOptions>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Incremental Load and Attribute Update"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{209C850E-1198-4212-869B-55C560C9B7ED}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Incremental Load and Attribute Update">
+      <DTS:Variables />
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage"
+          DTS:CreationName="Microsoft.Pipeline"
+          DTS:Description="Data Flow Task"
+          DTS:DTSID="{EB91E6A9-DB4F-41F3-910F-4DF47B81427A}"
+          DTS:ExecutableType="Microsoft.Pipeline"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="DFT Load Case Comm Time Stage"
+          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+          <DTS:Variables />
+          <DTS:PropertyExpression
+            DTS:Name="[ORA_SRC Get Case Comm Time].[SqlCommand]">@[User::vBaseCommQuery]</DTS:PropertyExpression>
+          <DTS:ObjectData>
+            <pipeline
+              autoAdjustBufferSize="true"
+              version="1">
+              <components>
+                <component
+                  refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time"
+                  componentClassID="Attunity.SSISOraSrc"
+                  contactInfo="Oracle Source;Microsoft Connector for Oracle by Attunity; Attunity Ltd.; All Rights Reserved; http://www.attunity.com;6"
+                  description="Microsoft Oracle Source Component by Attunity"
+                  name="ORA_SRC Get Case Comm Time"
+                  usesDispositions="true"
+                  version="6">
+                  <properties>
+                    <property
+                      dataType="System.String"
+                      description="The name of the table to be fetched."
+                      expressionType="Notify"
+                      name="TableName"></property>
+                    <property
+                      dataType="System.String"
+                      description="The SQL command to be executed."
+                      expressionType="Notify"
+                      name="SqlCommand">select ct.w_case_comm_time_key_id
+    , ct.comm_time_objid
+    , ct.creation_time
+    , ct.sla_duration
+    , ct.next_update_duration
+    , ct.next_update
+    , ct.case_objid
+    , ct.note_objid
+    , ct.user_objid
+    , ct.dw_create_dt
+    , ct.dw_last_modify_dt
+    , ct.dw_source_system_cd
+    , CASE WHEN ct.SLA_DURATION &lt;&gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override
+	, CASE WHEN ct.SLA_DURATION &lt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_more
+	, CASE WHEN ct.SLA_DURATION &gt; ct.NEXT_UPDATE_DURATION THEN 1 ELSE 0 END as default_sla_override_less
+	, CASE WHEN ct.NEXT_UPDATE = 'Awaiting Customer Reply' THEN 1 ELSE 0 END as awaiting_cust_reply_update
+	, CASE WHEN ct.NEXT_UPDATE = 'None Currently Planned' THEN 1 ELSE 0 END as none_currently_planned_update
+	, CASE WHEN ct.NEXT_UPDATE in ('Ticket Set to Auto Close','Ticket set to Auto Close')  THEN 1 ELSE 0 END as ticket_auto_close_update
+	, CASE WHEN ct.NEXT_UPDATE = 'Ticket Closed' THEN 1 ELSE 0 END as ticket_close_update
+    ,sysdate as created_date 
+    ,nvl(c.dw_secure_company_nbr,0) dw_secure_company_nbr
+from dsl_sm.w_case_comm_time ct 
+inner join dsl_sm.w_case c
+    on c.case_objid=ct.case_objid
+    and c.reporting_type='Opened'
+where trunc(ct.dw_last_modify_dt) &gt;= to_date('1/1/1900','mm/dd/yyyy HH:MI:SS AM')</property>
+                    <property
+                      dataType="System.Int32"
+                      description="The number of rows fetched in a batch."
+                      expressionType="Notify"
+                      name="BatchSize">10000</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Number of pre-fetched rows."
+                      expressionType="Notify"
+                      name="PrefetchCount">0</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Determines the chunk size allocation for LOB columns"
+                      expressionType="Notify"
+                      name="LobChunkSize">32768</property>
+                    <property
+                      dataType="System.Int32"
+                      description="The code page to use when code page information is unavailable from the data source."
+                      expressionType="Notify"
+                      name="DefaultCodePage">1252</property>
+                    <property
+                      dataType="System.Int32"
+                      description="The mode used to access the database."
+                      name="AccessMode"
+                      typeConverter="AccessMode">1</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Connections[MSOraConnection]"
+                      connectionManagerID="{C73D9CD3-151C-474A-B683-6AC219BEBECC}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[MSORA.CDW01P.bpi_metrics_ro]"
+                      description="The Oracle runtime connection"
+                      name="MSOraConnection" />
+                  </connections>
+                  <outputs>
+                    <output
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output]"
+                      errorRowDisposition="FailComponent"
+                      name="Oracle Source Output"
+                      truncationRowDisposition="FailComponent">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[W_CASE_COMM_TIME_KEY_ID]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[W_CASE_COMM_TIME_KEY_ID]"
+                          length="255"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[W_CASE_COMM_TIME_KEY_ID]"
+                          name="W_CASE_COMM_TIME_KEY_ID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[COMM_TIME_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[COMM_TIME_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[COMM_TIME_OBJID]"
+                          name="COMM_TIME_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATION_TIME]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATION_TIME]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATION_TIME]"
+                          name="CREATION_TIME" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[SLA_DURATION]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[SLA_DURATION]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[SLA_DURATION]"
+                          name="SLA_DURATION" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE_DURATION]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE_DURATION]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE_DURATION]"
+                          name="NEXT_UPDATE_DURATION" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE]"
+                          length="100"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE]"
+                          name="NEXT_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CASE_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CASE_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CASE_OBJID]"
+                          name="CASE_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NOTE_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NOTE_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NOTE_OBJID]"
+                          name="NOTE_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[USER_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[USER_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[USER_OBJID]"
+                          name="USER_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_CREATE_DT]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_CREATE_DT]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_CREATE_DT]"
+                          name="DW_CREATE_DT" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_LAST_MODIFY_DT]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_LAST_MODIFY_DT]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_LAST_MODIFY_DT]"
+                          name="DW_LAST_MODIFY_DT" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_SOURCE_SYSTEM_CD]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SOURCE_SYSTEM_CD]"
+                          length="20"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_SOURCE_SYSTEM_CD]"
+                          name="DW_SOURCE_SYSTEM_CD" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE]"
+                          name="DEFAULT_SLA_OVERRIDE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          name="DEFAULT_SLA_OVERRIDE_MORE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          name="DEFAULT_SLA_OVERRIDE_LESS" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[AWAITING_CUST_REPLY_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[AWAITING_CUST_REPLY_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[AWAITING_CUST_REPLY_UPDATE]"
+                          name="AWAITING_CUST_REPLY_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          name="NONE_CURRENTLY_PLANNED_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_AUTO_CLOSE_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_AUTO_CLOSE_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_AUTO_CLOSE_UPDATE]"
+                          name="TICKET_AUTO_CLOSE_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_CLOSE_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_CLOSE_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_CLOSE_UPDATE]"
+                          name="TICKET_CLOSE_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATED_DATE]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATED_DATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATED_DATE]"
+                          name="CREATED_DATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_SECURE_COMPANY_NBR]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SECURE_COMPANY_NBR]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_SECURE_COMPANY_NBR]"
+                          name="DW_SECURE_COMPANY_NBR" />
+                      </outputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[W_CASE_COMM_TIME_KEY_ID]"
+                          dataType="wstr"
+                          length="255"
+                          name="W_CASE_COMM_TIME_KEY_ID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[COMM_TIME_OBJID]"
+                          dataType="r8"
+                          name="COMM_TIME_OBJID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATION_TIME]"
+                          dataType="dbTimeStamp"
+                          name="CREATION_TIME" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[SLA_DURATION]"
+                          dataType="r8"
+                          name="SLA_DURATION" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE_DURATION]"
+                          dataType="r8"
+                          name="NEXT_UPDATE_DURATION" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE]"
+                          dataType="wstr"
+                          length="100"
+                          name="NEXT_UPDATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CASE_OBJID]"
+                          dataType="r8"
+                          name="CASE_OBJID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NOTE_OBJID]"
+                          dataType="r8"
+                          name="NOTE_OBJID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[USER_OBJID]"
+                          dataType="r8"
+                          name="USER_OBJID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_CREATE_DT]"
+                          dataType="dbTimeStamp"
+                          name="DW_CREATE_DT" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_LAST_MODIFY_DT]"
+                          dataType="dbTimeStamp"
+                          name="DW_LAST_MODIFY_DT" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SOURCE_SYSTEM_CD]"
+                          dataType="wstr"
+                          length="20"
+                          name="DW_SOURCE_SYSTEM_CD" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE]"
+                          dataType="r8"
+                          name="DEFAULT_SLA_OVERRIDE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          dataType="r8"
+                          name="DEFAULT_SLA_OVERRIDE_MORE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          dataType="r8"
+                          name="DEFAULT_SLA_OVERRIDE_LESS" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[AWAITING_CUST_REPLY_UPDATE]"
+                          dataType="r8"
+                          name="AWAITING_CUST_REPLY_UPDATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          dataType="r8"
+                          name="NONE_CURRENTLY_PLANNED_UPDATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_AUTO_CLOSE_UPDATE]"
+                          dataType="r8"
+                          name="TICKET_AUTO_CLOSE_UPDATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_CLOSE_UPDATE]"
+                          dataType="r8"
+                          name="TICKET_CLOSE_UPDATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATED_DATE]"
+                          dataType="dbTimeStamp"
+                          name="CREATED_DATE" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SECURE_COMPANY_NBR]"
+                          dataType="r8"
+                          name="DW_SECURE_COMPANY_NBR" />
+                      </externalMetadataColumns>
+                    </output>
+                    <output
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output]"
+                      isErrorOut="true"
+                      name="Oracle Source Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[W_CASE_COMM_TIME_KEY_ID]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[W_CASE_COMM_TIME_KEY_ID]"
+                          length="255"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[W_CASE_COMM_TIME_KEY_ID]"
+                          name="W_CASE_COMM_TIME_KEY_ID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[COMM_TIME_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[COMM_TIME_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[COMM_TIME_OBJID]"
+                          name="COMM_TIME_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CREATION_TIME]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATION_TIME]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CREATION_TIME]"
+                          name="CREATION_TIME" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[SLA_DURATION]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[SLA_DURATION]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[SLA_DURATION]"
+                          name="SLA_DURATION" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NEXT_UPDATE_DURATION]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE_DURATION]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NEXT_UPDATE_DURATION]"
+                          name="NEXT_UPDATE_DURATION" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NEXT_UPDATE]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NEXT_UPDATE]"
+                          length="100"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NEXT_UPDATE]"
+                          name="NEXT_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CASE_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CASE_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CASE_OBJID]"
+                          name="CASE_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NOTE_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NOTE_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NOTE_OBJID]"
+                          name="NOTE_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[USER_OBJID]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[USER_OBJID]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[USER_OBJID]"
+                          name="USER_OBJID" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_CREATE_DT]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_CREATE_DT]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_CREATE_DT]"
+                          name="DW_CREATE_DT" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_LAST_MODIFY_DT]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_LAST_MODIFY_DT]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_LAST_MODIFY_DT]"
+                          name="DW_LAST_MODIFY_DT" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_SOURCE_SYSTEM_CD]"
+                          dataType="wstr"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SOURCE_SYSTEM_CD]"
+                          length="20"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_SOURCE_SYSTEM_CD]"
+                          name="DW_SOURCE_SYSTEM_CD" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE]"
+                          name="DEFAULT_SLA_OVERRIDE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          name="DEFAULT_SLA_OVERRIDE_MORE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          name="DEFAULT_SLA_OVERRIDE_LESS" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[AWAITING_CUST_REPLY_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[AWAITING_CUST_REPLY_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[AWAITING_CUST_REPLY_UPDATE]"
+                          name="AWAITING_CUST_REPLY_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          name="NONE_CURRENTLY_PLANNED_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[TICKET_AUTO_CLOSE_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_AUTO_CLOSE_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[TICKET_AUTO_CLOSE_UPDATE]"
+                          name="TICKET_AUTO_CLOSE_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[TICKET_CLOSE_UPDATE]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[TICKET_CLOSE_UPDATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[TICKET_CLOSE_UPDATE]"
+                          name="TICKET_CLOSE_UPDATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CREATED_DATE]"
+                          dataType="dbTimeStamp"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[CREATED_DATE]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[CREATED_DATE]"
+                          name="CREATED_DATE" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_SECURE_COMPANY_NBR]"
+                          dataType="r8"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].ExternalColumns[DW_SECURE_COMPANY_NBR]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[DW_SECURE_COMPANY_NBR]"
+                          name="DW_SECURE_COMPANY_NBR" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+                <component
+                  refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete)"
+                  componentClassID="Microsoft.ManagedComponentHost"
+                  contactInfo="Upsert Destination (Insert, Update, Delete); ZappySys LLC (c) All Rights Reserved; SSIS PowerPack; http://www.zappysys.com/support"
+                  description="Upsert destination can be used for bulk insert / update / delete (i.e. Merge) based on matching source and target records in MS SQL Server, PostgreSql, Amazon Redshift database."
+                  name="Upsert Destination (Insert, Update, Delete)"
+                  usesDispositions="true"
+                  version="3">
+                  <properties>
+                    <property
+                      dataType="System.Int32"
+                      description="LoggingMode determines how much information is logged during Package Execution. Set Logging mode to Debugging for maximum log."
+                      expressionType="Notify"
+                      name="LoggingMode"
+                      typeConverter="ZappySys.PowerPack.Common.LoggingMode">0</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="When you enable this property it will prefix timestamp before Log messages."
+                      expressionType="Notify"
+                      name="PrefixTimestamp">false</property>
+                    <property
+                      dataType="System.Null"
+                      expressionType="Notify"
+                      name="SelfRef"
+                      typeConverter="NOTBROWSABLE" />
+                    <property
+                      dataType="System.Boolean"
+                      description="Enable / Disable Response Output. Checking this option can remove unwanted warnings about unused Columns and many times speedup performance so if output is not needed set this option to True so its removed."
+                      name="DoNotCreateOutputs">false</property>
+                    <property
+                      dataType="System.String"
+                      description="Target table name where you like insert, update or delete records"
+                      expressionType="Notify"
+                      name="TableName"
+                      typeConverter="ZappySys.PowerPack.Converters.TableEditor,ZappySys.PowerPack130.UI,Version=1.0.0.0,Culture=neutral,PublicKeyToken=1903265a93eae502">[dbo].[case_variable_comm_detail]</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Commit batch size (0=Commit once all source rows are consumed). You can Change Batch Size to commit in smaller chunks too if error handling needed."
+                      expressionType="Notify"
+                      name="BatchSize">0</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Action you like to perform (e.g. Upsert, Insert, Update, Delete or Sync)"
+                      expressionType="Notify"
+                      name="Action"
+                      typeConverter="ZappySys.Common.Data.MergeMode">0</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="INSERT source rows to target if they don't exist in target table (Only for Sync or Upsert Action)"
+                      expressionType="Notify"
+                      name="EnableInsert">true</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="UPDATE source rows to target if they exist in target table (Only for Sync or Upsert Action)"
+                      expressionType="Notify"
+                      name="EnableUpdate">true</property>
+                    <property
+                      dataType="System.Boolean"
+                      description="DELETE target rows if missing in source (Only for Sync or Upsert Action)"
+                      expressionType="Notify"
+                      name="EnableDelete">false</property>
+                    <property
+                      dataType="System.String"
+                      description="User defined Temp table to hold source result before final merge. This table is truncated before each data load. Unlike auto temp table, custom temp table is not dropped after process is finished."
+                      expressionType="Notify"
+                      name="CustomTempTableName"></property>
+                    <property
+                      dataType="System.String"
+                      description="SQL command you like to execute after source data is loaded into temp table. For example you can use this option to issue Custom SQL to delete duplicate rows from Staging Table right before final merge. This command is executed before issuing final merge on target table. Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                      expressionType="Notify"
+                      name="TempPostExecuteCommand"></property>
+                    <property
+                      dataType="System.String"
+                      description="SQL command you like to execute before starting load in target table (e.g. DROP INDEX on target). Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                      expressionType="Notify"
+                      name="PreExecuteCommand"></property>
+                    <property
+                      dataType="System.String"
+                      description="SQL command you like to execute at the end once target table is update (e.g. REBUILD or CREATE INDEX on target table). Along with variable placeholders, you can also use special placeholders [%target_table%], [%temp_table%] and [%target_keys%]"
+                      expressionType="Notify"
+                      name="PostExecuteCommand"></property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies what to do if you encounter duplicate records in source data. You can use first row in the group or keep last row or throw error."
+                      expressionType="Notify"
+                      name="DuplicateRemovalMode"
+                      typeConverter="ZappySys.Common.Data.DuplicateRemovalMode">0</property>
+                    <property
+                      dataType="System.String"
+                      name="UserComponentTypeName">ZappySys.UpsertDestination</property>
+                  </properties>
+                  <connections>
+                    <connection
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Connections[DB-CONNECTION]"
+                      connectionManagerID="{ACEA81D1-E363-4504-B4F0-89D13CC66684}:external"
+                      connectionManagerRefId="Project.ConnectionManagers[ADONET.CSM_METRICS]"
+                      description="Connection for this component"
+                      name="DB-CONNECTION" />
+                  </connections>
+                  <inputs>
+                    <input
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput]"
+                      errorRowDisposition="FailComponent"
+                      hasSideEffects="true"
+                      name="UpsertDestinationInput"
+                      truncationRowDisposition="FailComponent">
+                      <inputColumns>
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[comm_time_objid]"
+                          cachedDataType="r8"
+                          cachedName="COMM_TIME_OBJID"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[comm_time_objid]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[COMM_TIME_OBJID]"
+                          name="comm_time_objid" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[case_objid]"
+                          cachedDataType="r8"
+                          cachedName="CASE_OBJID"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[case_objid]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CASE_OBJID]"
+                          name="case_objid" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[note_creation_time]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="CREATION_TIME"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[note_creation_time]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATION_TIME]"
+                          name="note_creation_time" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[default_sla_duration_secs]"
+                          cachedDataType="r8"
+                          cachedName="SLA_DURATION"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_duration_secs]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[SLA_DURATION]"
+                          name="default_sla_duration_secs" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[next_update_duration_secs]"
+                          cachedDataType="r8"
+                          cachedName="NEXT_UPDATE_DURATION"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[next_update_duration_secs]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE_DURATION]"
+                          name="next_update_duration_secs" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[next_update]"
+                          cachedDataType="wstr"
+                          cachedLength="100"
+                          cachedName="NEXT_UPDATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[next_update]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NEXT_UPDATE]"
+                          name="next_update" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[note_objid]"
+                          cachedDataType="r8"
+                          cachedName="NOTE_OBJID"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[note_objid]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NOTE_OBJID]"
+                          name="note_objid" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[user_objid]"
+                          cachedDataType="r8"
+                          cachedName="USER_OBJID"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_objid]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[USER_OBJID]"
+                          name="user_objid" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[default_sla_override]"
+                          cachedDataType="r8"
+                          cachedName="DEFAULT_SLA_OVERRIDE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE]"
+                          name="default_sla_override" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[default_sla_override_more]"
+                          cachedDataType="r8"
+                          cachedName="DEFAULT_SLA_OVERRIDE_MORE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override_more]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_MORE]"
+                          name="default_sla_override_more" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[default_sla_override_less]"
+                          cachedDataType="r8"
+                          cachedName="DEFAULT_SLA_OVERRIDE_LESS"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override_less]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DEFAULT_SLA_OVERRIDE_LESS]"
+                          name="default_sla_override_less" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[awaiting_cust_reply_update]"
+                          cachedDataType="r8"
+                          cachedName="AWAITING_CUST_REPLY_UPDATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[awaiting_cust_reply_update]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[AWAITING_CUST_REPLY_UPDATE]"
+                          name="awaiting_cust_reply_update" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[none_currently_planned_update]"
+                          cachedDataType="r8"
+                          cachedName="NONE_CURRENTLY_PLANNED_UPDATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[none_currently_planned_update]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[NONE_CURRENTLY_PLANNED_UPDATE]"
+                          name="none_currently_planned_update" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[ticket_auto_close_update]"
+                          cachedDataType="r8"
+                          cachedName="TICKET_AUTO_CLOSE_UPDATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ticket_auto_close_update]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_AUTO_CLOSE_UPDATE]"
+                          name="ticket_auto_close_update" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[ticket_close_update]"
+                          cachedDataType="r8"
+                          cachedName="TICKET_CLOSE_UPDATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ticket_close_update]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[TICKET_CLOSE_UPDATE]"
+                          name="ticket_close_update" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[dw_last_modify_dt]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="DW_LAST_MODIFY_DT"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[dw_last_modify_dt]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_LAST_MODIFY_DT]"
+                          name="dw_last_modify_dt" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[created_date]"
+                          cachedDataType="dbTimeStamp"
+                          cachedName="CREATED_DATE"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[created_date]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[CREATED_DATE]"
+                          name="created_date" />
+                        <inputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].Columns[dw_secure_company_nbr]"
+                          cachedDataType="r8"
+                          cachedName="DW_SECURE_COMPANY_NBR"
+                          externalMetadataColumnId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[dw_secure_company_nbr]"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output].Columns[DW_SECURE_COMPANY_NBR]"
+                          name="dw_secure_company_nbr" />
+                      </inputColumns>
+                      <externalMetadataColumns
+                        isUsed="True">
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[comm_time_objid]"
+                          dataType="i4"
+                          name="comm_time_objid">
+                          <properties>
+                            <property
+                              dataType="System.Boolean"
+                              description="Primary Key Column for this table"
+                              expressionType="Notify"
+                              name="IsKey">true</property>
+                          </properties>
+                        </externalMetadataColumn>
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[case_objid]"
+                          dataType="i4"
+                          name="case_objid" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[case_id]"
+                          dataType="wstr"
+                          length="10"
+                          name="case_id" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[case_type]"
+                          dataType="wstr"
+                          length="64"
+                          name="case_type" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[note_creation_time]"
+                          dataType="dbTimeStamp"
+                          name="note_creation_time" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_duration_secs]"
+                          dataType="numeric"
+                          name="default_sla_duration_secs"
+                          precision="9" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[next_update_duration_secs]"
+                          dataType="numeric"
+                          name="next_update_duration_secs"
+                          precision="9" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[next_update]"
+                          dataType="wstr"
+                          length="100"
+                          name="next_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[note_objid]"
+                          dataType="i4"
+                          name="note_objid" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_objid]"
+                          dataType="i4"
+                          name="user_objid" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_nt_login_id]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="user_nt_login_id" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_login_name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="user_login_name" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_last_name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="user_last_name" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_first_name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="50"
+                          name="user_first_name" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_work_group]"
+                          codePage="1252"
+                          dataType="str"
+                          length="80"
+                          name="user_work_group" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_supervisor_name]"
+                          codePage="1252"
+                          dataType="str"
+                          length="240"
+                          name="user_supervisor_name" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_work_group_technology]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="user_work_group_technology" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_work_group_region]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="user_work_group_region" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[case_comm_order]"
+                          dataType="i2"
+                          name="case_comm_order" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[prev_note_creation_time]"
+                          dataType="dbTimeStamp"
+                          name="prev_note_creation_time" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[prev_next_update]"
+                          dataType="wstr"
+                          length="100"
+                          name="prev_next_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[prev_next_update_duration_secs]"
+                          dataType="numeric"
+                          name="prev_next_update_duration_secs"
+                          precision="9" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[sub_note_creation_time]"
+                          dataType="dbTimeStamp"
+                          name="sub_note_creation_time" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[sub_next_update]"
+                          dataType="wstr"
+                          length="100"
+                          name="sub_next_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[sub_next_update_duration_secs]"
+                          dataType="numeric"
+                          name="sub_next_update_duration_secs"
+                          precision="9" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override]"
+                          dataType="bool"
+                          name="default_sla_override" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override_more]"
+                          dataType="bool"
+                          name="default_sla_override_more" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[default_sla_override_less]"
+                          dataType="bool"
+                          name="default_sla_override_less" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[nonclocking_status_default_sla]"
+                          dataType="bool"
+                          name="nonclocking_status_default_sla" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[update_less_half_sla_duration]"
+                          dataType="bool"
+                          name="update_less_half_sla_duration" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[awaiting_cust_reply_update]"
+                          dataType="bool"
+                          name="awaiting_cust_reply_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[awr_not_associated_to_can_status]"
+                          dataType="bool"
+                          name="awr_not_associated_to_can_status" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[possible_awaiting_cust_reply]"
+                          dataType="bool"
+                          name="possible_awaiting_cust_reply" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[none_currently_planned_update]"
+                          dataType="bool"
+                          name="none_currently_planned_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[subsequent_to_none_cur_planned]"
+                          dataType="bool"
+                          name="subsequent_to_none_cur_planned" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ticket_auto_close_update]"
+                          dataType="bool"
+                          name="ticket_auto_close_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[subsequent_to_ticket_auto_close]"
+                          dataType="bool"
+                          name="subsequent_to_ticket_auto_close" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[ticket_close_update]"
+                          dataType="bool"
+                          name="ticket_close_update" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[subsequent_to_ticket_close]"
+                          dataType="bool"
+                          name="subsequent_to_ticket_close" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[dw_last_modify_dt]"
+                          dataType="dbTimeStamp"
+                          name="dw_last_modify_dt" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Note_Due_Date]"
+                          dataType="dbTimeStamp"
+                          name="Note_Due_Date" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Note_Met_Due_Date]"
+                          dataType="i4"
+                          name="Note_Met_Due_Date" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Promised_By]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="Promised_By" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Promised_By_Work_Group]"
+                          codePage="1252"
+                          dataType="str"
+                          length="80"
+                          name="Promised_By_Work_Group" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Promised_By_Technology]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="Promised_By_Technology" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Promised_By_Region]"
+                          codePage="1252"
+                          dataType="str"
+                          length="100"
+                          name="Promised_By_Region" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[user_Person_ID]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="user_Person_ID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[Promised_By_Person_ID]"
+                          codePage="1252"
+                          dataType="str"
+                          length="30"
+                          name="Promised_By_Person_ID" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[created_date]"
+                          dataType="dbTimeStamp"
+                          name="created_date" />
+                        <externalMetadataColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput].ExternalColumns[dw_secure_company_nbr]"
+                          dataType="r8"
+                          name="dw_secure_company_nbr" />
+                      </externalMetadataColumns>
+                    </input>
+                  </inputs>
+                  <outputs>
+                    <output
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output]"
+                      isErrorOut="true"
+                      name="UpsertDestination Error Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorCode]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorCode]"
+                          name="ErrorCode"
+                          specialFlags="1" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumn]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumn]"
+                          name="ErrorColumn"
+                          specialFlags="2" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumnName]"
+                          codePage="1252"
+                          dataType="str"
+                          length="128"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorColumnName]"
+                          name="ErrorColumnName" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorMessage]"
+                          dataType="wstr"
+                          length="1024"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ErrorMessage]"
+                          name="ErrorMessage" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[comm_time_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[comm_time_objid]"
+                          name="comm_time_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[case_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[case_objid]"
+                          name="case_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[note_creation_time]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[note_creation_time]"
+                          name="note_creation_time" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_duration_secs]"
+                          name="default_sla_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[next_update_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[next_update_duration_secs]"
+                          name="next_update_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[next_update]"
+                          dataType="wstr"
+                          length="100"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[next_update]"
+                          name="next_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[note_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[note_objid]"
+                          name="note_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[user_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[user_objid]"
+                          name="user_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override]"
+                          name="default_sla_override" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override_more]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override_more]"
+                          name="default_sla_override_more" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override_less]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[default_sla_override_less]"
+                          name="default_sla_override_less" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[awaiting_cust_reply_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[awaiting_cust_reply_update]"
+                          name="awaiting_cust_reply_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[none_currently_planned_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[none_currently_planned_update]"
+                          name="none_currently_planned_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ticket_auto_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ticket_auto_close_update]"
+                          name="ticket_auto_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ticket_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[ticket_close_update]"
+                          name="ticket_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[dw_last_modify_dt]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[dw_last_modify_dt]"
+                          name="dw_last_modify_dt" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[created_date]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[created_date]"
+                          name="created_date" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[dw_secure_company_nbr]"
+                          dataType="r8"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[UpsertDestination Error Output].Columns[dw_secure_company_nbr]"
+                          name="dw_secure_company_nbr" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                    <output
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output]"
+                      name="New Records Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[comm_time_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[comm_time_objid]"
+                          name="comm_time_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[case_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[case_objid]"
+                          name="case_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[note_creation_time]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[note_creation_time]"
+                          name="note_creation_time" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_duration_secs]"
+                          name="default_sla_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[next_update_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[next_update_duration_secs]"
+                          name="next_update_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[next_update]"
+                          dataType="wstr"
+                          length="100"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[next_update]"
+                          name="next_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[note_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[note_objid]"
+                          name="note_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[user_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[user_objid]"
+                          name="user_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override]"
+                          name="default_sla_override" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override_more]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override_more]"
+                          name="default_sla_override_more" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override_less]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[default_sla_override_less]"
+                          name="default_sla_override_less" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[awaiting_cust_reply_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[awaiting_cust_reply_update]"
+                          name="awaiting_cust_reply_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[none_currently_planned_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[none_currently_planned_update]"
+                          name="none_currently_planned_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ticket_auto_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ticket_auto_close_update]"
+                          name="ticket_auto_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ticket_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[ticket_close_update]"
+                          name="ticket_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[dw_last_modify_dt]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[dw_last_modify_dt]"
+                          name="dw_last_modify_dt" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[created_date]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[created_date]"
+                          name="created_date" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[dw_secure_company_nbr]"
+                          dataType="r8"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[New Records Output].Columns[dw_secure_company_nbr]"
+                          name="dw_secure_company_nbr" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                    <output
+                      refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output]"
+                      name="Updated Records Output">
+                      <outputColumns>
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[comm_time_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[comm_time_objid]"
+                          name="comm_time_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[case_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[case_objid]"
+                          name="case_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[note_creation_time]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[note_creation_time]"
+                          name="note_creation_time" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_duration_secs]"
+                          name="default_sla_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[next_update_duration_secs]"
+                          dataType="numeric"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[next_update_duration_secs]"
+                          name="next_update_duration_secs"
+                          precision="9" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[next_update]"
+                          dataType="wstr"
+                          length="100"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[next_update]"
+                          name="next_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[note_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[note_objid]"
+                          name="note_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[user_objid]"
+                          dataType="i4"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[user_objid]"
+                          name="user_objid" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override]"
+                          name="default_sla_override" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override_more]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override_more]"
+                          name="default_sla_override_more" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override_less]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[default_sla_override_less]"
+                          name="default_sla_override_less" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[awaiting_cust_reply_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[awaiting_cust_reply_update]"
+                          name="awaiting_cust_reply_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[none_currently_planned_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[none_currently_planned_update]"
+                          name="none_currently_planned_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ticket_auto_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ticket_auto_close_update]"
+                          name="ticket_auto_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ticket_close_update]"
+                          dataType="bool"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[ticket_close_update]"
+                          name="ticket_close_update" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[dw_last_modify_dt]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[dw_last_modify_dt]"
+                          name="dw_last_modify_dt" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[created_date]"
+                          dataType="dbTimeStamp"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[created_date]"
+                          name="created_date" />
+                        <outputColumn
+                          refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[dw_secure_company_nbr]"
+                          dataType="r8"
+                          lineageId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Outputs[Updated Records Output].Columns[dw_secure_company_nbr]"
+                          name="dw_secure_company_nbr" />
+                      </outputColumns>
+                      <externalMetadataColumns />
+                    </output>
+                  </outputs>
+                </component>
+              </components>
+              <paths>
+                <path
+                  refId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage.Paths[Oracle Source Output]"
+                  endId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete).Inputs[UpsertDestinationInput]"
+                  name="Oracle Source Output"
+                  startId="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time.Outputs[Oracle Source Output]" />
+              </paths>
+            </pipeline>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Incremental Load and Attribute Update\Get Last Modify Dt - Case Comm"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{D17D454B-3E73-499E-8D2F-C4C5B4A925D5}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Get Last Modify Dt - Case Comm"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="select max(dateadd(dd, -3, datediff(dd, 0, dw_last_modify_dt))) as MxDt from dbo.case_variable_comm_detail;&#xA;&#xA;&#xA;--SELECT DATEADD(Month, DATEDIFF(Month, 0, DATEADD(m, -12, GETDATE())), 0) as MxDt;"
+              SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+              <SQLTask:ResultBinding
+                SQLTask:ResultName="MxDt"
+                SQLTask:DtsVariableName="User::vMxDt" />
+            </SQLTask:SqlTaskData>
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\Incremental Load and Attribute Update\Update Inserted Attribute Fields"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{1F65744B-B5ED-471D-B1D6-04F5CFCEFD5E}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="Update Inserted Attribute Fields"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2016; © 2015 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="exec [dbo].[usp_Comm_Case_detail] ;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+      <DTS:PrecedenceConstraints>
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Incremental Load and Attribute Update.PrecedenceConstraints[Constraint]"
+          DTS:CreationName=""
+          DTS:DTSID="{CECD3432-7A33-4A19-B905-7AD8FE4B781E}"
+          DTS:From="Package\Incremental Load and Attribute Update\Get Last Modify Dt - Case Comm"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint"
+          DTS:To="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage" />
+        <DTS:PrecedenceConstraint
+          DTS:refId="Package\Incremental Load and Attribute Update.PrecedenceConstraints[Constraint 1]"
+          DTS:CreationName=""
+          DTS:DTSID="{983AD441-4DEA-41FD-8EFE-2EF08C8BC617}"
+          DTS:From="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage"
+          DTS:LogicalAnd="True"
+          DTS:ObjectName="Constraint 1"
+          DTS:To="Package\Incremental Load and Attribute Update\Update Inserted Attribute Fields" />
+      </DTS:PrecedenceConstraints>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SEQ Job Waits"
+      DTS:CreationName="STOCK:SEQUENCE"
+      DTS:Description="Sequence Container"
+      DTS:DTSID="{E2F234BB-F77D-4CB2-84EE-F4786EC8C21F}"
+      DTS:ExecutableType="STOCK:SEQUENCE"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SEQ Job Waits">
+      <DTS:Variables />
+      <DTS:Executables>
+        <DTS:Executable
+          DTS:refId="Package\SEQ Job Waits\SQL Wait - BIRA_SA_ACT_ENTRY_DWPROD"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{79F11D7E-5E32-460E-A652-FB197B4A15C6}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Wait - BIRA_SA_ACT_ENTRY_DWPROD"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="3">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="EXEC dbo.usp_wait_for_job 'BIRA_SA_ACT_ENTRY_DWPROD'; /* just needs EMPLOYEE HISTORICAL to finish */&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQ Job Waits\SQL Wait - BIRA_SA_DATALOAD_PRELOAD"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{072B1497-4AD4-45FF-9A97-88805DF70651}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Wait - BIRA_SA_DATALOAD_PRELOAD"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="0">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="EXEC dbo.usp_wait_for_job 'BIRA_SA_CLARSUPP_ADDN_TABLES'; /* just needs WFM Config to finish */&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQ Job Waits\SQL Wait - BIRA_SA_GNOC_METRIC_MAIN_COMBINED"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{DE01F0B0-8048-4F2A-BD2D-1B9B7637D041}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Wait - BIRA_SA_GNOC_METRIC_MAIN_COMBINED"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="1">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="EXEC dbo.usp_wait_for_job 'BIRA_SA_GNOC_METRIC_MAIN_COMBINED';&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+        <DTS:Executable
+          DTS:refId="Package\SEQ Job Waits\SQL Wait - BIRA_SA_LIFE_OF_TICKET"
+          DTS:CreationName="Microsoft.ExecuteSQLTask"
+          DTS:Description="Execute SQL Task"
+          DTS:DTSID="{74852E2B-F5DE-406D-A27C-2FF70C5127CE}"
+          DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+          DTS:LocaleID="-1"
+          DTS:ObjectName="SQL Wait - BIRA_SA_LIFE_OF_TICKET"
+          DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+          DTS:ThreadHint="2">
+          <DTS:Variables />
+          <DTS:ObjectData>
+            <SQLTask:SqlTaskData
+              SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+              SQLTask:SqlStatementSource="EXEC&#x9;dbo.usp_wait_for_job 'BIRA_SA_LIFE_OF_TICKET';" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          </DTS:ObjectData>
+        </DTS:Executable>
+      </DTS:Executables>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL - Get Job Info"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="SQL - Get Job Info"
+      DTS:DTSID="{69B21B4F-4572-4C6E-A9C7-9833ADBD172F}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL - Get Job Info"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{A5706BDE-FD56-48B9-9500-8F7709357B58}"
+          SQLTask:SqlStatementSource="DECLARE @JobID VARCHAR(4000) = ?; &#xA;&#xA;DECLARE @JobName  VARCHAR(100); &#xA;&#xA;DECLARE @SQLStatement NVARCHAR(500); &#xA;&#xA;&#xA;IF (LEFT(@JobID,2) = '0x') -- start of the binary representation, so we have a job GUID &#xA;&#xA;       BEGIN &#xA;&#xA;&#xA;  SELECT @SQLStatement =  &#xA;&#xA;  ' &#xA;&#xA;   SELECT @JobNameOUT = [Name] &#xA;&#xA;   FROM msdb.dbo.sysjobs   &#xA;&#xA;   WHERE job_id = CONVERT(UNIQUEIDENTIFIER,' +  @JobID + ');  &#xA;&#xA;  ' &#xA;&#xA;  EXEC sp_executesql @SQLStatement, N'@JobNameOUT VARCHAR(100) OUTPUT', @JobNameOUT = @JobName OUTPUT; &#xA;&#xA;&#xA;  Select @JobName as Job_Name; &#xA;&#xA;       END &#xA;&#xA;ELSE &#xA;&#xA;       BEGIN &#xA;&#xA;   Select 'The package was started manually.' as Job_Name; &#xA;&#xA;END &#xA;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="Job_Name"
+            SQLTask:DtsVariableName="User::vAgentJobName" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::vAgentJobID"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Job Start Notice"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{2FB191AA-CD30-41DC-8CB6-5C1B7D81AFC8}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Job Start Notice"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+          SQLTask:SqlStatementSource="EXEC dbo.Usp_jv_update               &#xA;    @reportname = ?    &#xA;  , @updatetype = 0              &#xA;  , @source_server = ?              &#xA;  , @source_job = ? ;&#xA;&#xA;&#xA;--Job Validation&#xA;--Job Start&#xA;--EXEC dbo.usp_jv_update 'BIRA_SA_CASE_COMM_TIME'&#xA;-- ,0  &#xA;-- ,d&#xA;-- ,'braaten.joey'&#xA;-- ,'USIDCVSSIS0005'&#xA;-- ,'BIRA_SA_CASE_COMM_TIME'&#xA;-- ,'BIRA_SA_CASE_COMM_TIME.dtsx'" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::vProcessName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="System::MachineName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::vProcessName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL Job Stop"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{BB3561CF-92F2-47BA-B9F4-E5D9CC74C793}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL Job Stop"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008 R2; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AF0F127A-364E-4EF2-9887-8009583AFDF6}"
+          SQLTask:SqlStatementSource="--Job Stop&#xA;EXEC dbo.usp_jv_update 'BIRA_SA_CASE_COMM_TIME'&#xA; ,1" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{55014CF2-F657-4FEC-9B0E-94C6E03E1052}"
+      DTS:From="Package\SQL Job Start Notice"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\Incremental Load and Attribute Update" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{0288CFF6-5ED6-4987-AF14-E188D561A5AB}"
+      DTS:From="Package\Incremental Load and Attribute Update"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\SQL Job Stop" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{56879922-361E-4D25-8472-CB742EDDDEA8}"
+      DTS:From="Package\SEQ Job Waits"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\SQL - Get Job Info" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{C1030CF3-8A01-4733-8EB5-34AF4E856FFE}"
+      DTS:From="Package\SQL - Get Job Info"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\SQL Job Start Notice" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="240,42"
+          Id="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage"
+          TopLeft="5.50000000000003,107.5" />
+        <NodeLayout
+          Size="233,42"
+          Id="Package\Incremental Load and Attribute Update\Get Last Modify Dt - Case Comm"
+          TopLeft="8.83333333333334,5.5" />
+        <NodeLayout
+          Size="229,42"
+          Id="Package\Incremental Load and Attribute Update\Update Inserted Attribute Fields"
+          TopLeft="10.8333333333334,209.5" />
+        <EdgeLayout
+          Id="Package\Incremental Load and Attribute Update.PrecedenceConstraints[Constraint]"
+          TopLeft="125.5,47.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\Incremental Load and Attribute Update.PrecedenceConstraints[Constraint 1]"
+          TopLeft="125.5,149.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="251,307"
+          Size="251,349"
+          Id="Package\Incremental Load and Attribute Update"
+          TopLeft="392.833333333333,452.166666666667" />
+        <NodeLayout
+          Size="130,77"
+          Id="Package\SEQ Job Waits\SQL Wait - BIRA_SA_ACT_ENTRY_DWPROD"
+          TopLeft="5.5,5.49999999999996" />
+        <NodeLayout
+          Size="284,42"
+          Id="Package\SEQ Job Waits\SQL Wait - BIRA_SA_DATALOAD_PRELOAD"
+          TopLeft="196.5,23.1666666666666" />
+        <NodeLayout
+          Size="157,77"
+          Id="Package\SEQ Job Waits\SQL Wait - BIRA_SA_GNOC_METRIC_MAIN_COMBINED"
+          TopLeft="540.833333333333,5.49999999999985" />
+        <NodeLayout
+          Size="261,42"
+          Id="Package\SEQ Job Waits\SQL Wait - BIRA_SA_LIFE_OF_TICKET"
+          TopLeft="758.833333333333,23.1666666666665" />
+        <ContainerLayout
+          HeaderHeight="43"
+          IsExpanded="True"
+          PanelSize="1025,138"
+          Size="1025,181"
+          Id="Package\SEQ Job Waits"
+          TopLeft="5.50000000000011,5.50000000000016" />
+        <NodeLayout
+          Size="230,44"
+          Id="Package\SQL - Get Job Info"
+          TopLeft="403.166666666667,246.166666666667" />
+        <NodeLayout
+          Size="176,42"
+          Id="Package\SQL Job Start Notice"
+          TopLeft="430.166666666667,350.166666666667" />
+        <NodeLayout
+          Size="167,44"
+          Id="Package\SQL Job Stop"
+          TopLeft="434.833333333333,861.5" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="518.166666666667,392.166666666667">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000001"
+              Start="0,0"
+              End="0,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="518.166666666667,801.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="518.166666666667,186.166666666667">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000002"
+              Start="0,0"
+              End="0,52.5000000000002">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000002" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="518.166666666667,290.166666666667">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+  <TaskHost
+    design-time-name="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="231,43"
+          Id="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\ORA_SRC Get Case Comm Time"
+          TopLeft="31.5,5.50000000000004" />
+        <NodeLayout
+          Size="283,43"
+          Id="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage\Upsert Destination (Insert, Update, Delete)"
+          TopLeft="5.50000000000003,108.166666666667" />
+        <EdgeLayout
+          Id="Package\Incremental Load and Attribute Update\DFT Load Case Comm Time Stage.Paths[Oracle Source Output]"
+          TopLeft="146.833333333333,48.1666666666667">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000001"
+              Start="0,0"
+              End="0,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

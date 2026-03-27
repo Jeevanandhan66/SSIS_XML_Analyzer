@@ -119,6 +119,43 @@ export const transformationLogicSchema = z.object({
 
 export type TransformationLogic = z.infer<typeof transformationLogicSchema>;
 
+// Pipeline execution column inventory (XML metadata only; no SQL parsing)
+export const columnLineageEntrySchema = z.object({
+  name: z.string(),
+  lineageId: z.string().nullable().optional(),
+});
+
+export type ColumnLineageEntry = z.infer<typeof columnLineageEntrySchema>;
+
+export const executionColumnInventorySchema = z.object({
+  columns: z.array(z.string()),
+  columnsWithLineage: z.array(columnLineageEntrySchema).optional(),
+});
+
+export type ExecutionColumnInventory = z.infer<typeof executionColumnInventorySchema>;
+
+export const dataFlowColumnInventoryComponentSchema = z.object({
+  componentName: z.string(),
+  componentType: z.string(),
+  componentTypeName: z.string(),
+  componentId: z.string().optional(),
+  columns: z.array(z.string()),
+  columnsWithLineage: z.array(columnLineageEntrySchema).optional(),
+});
+
+export const dataFlowColumnInventoryTaskSchema = z.object({
+  taskId: z.string(),
+  taskName: z.string(),
+  components: z.array(dataFlowColumnInventoryComponentSchema),
+});
+
+export const dataFlowColumnInventorySchema = z.object({
+  dataFlowTasks: z.array(dataFlowColumnInventoryTaskSchema),
+  globalUniqueColumns: z.array(z.string()),
+});
+
+export type DataFlowColumnInventory = z.infer<typeof dataFlowColumnInventorySchema>;
+
 // Data Flow Component
 export const dataFlowComponentSchema = z.object({
   id: z.string(),
@@ -138,6 +175,7 @@ export const dataFlowComponentSchema = z.object({
   componentClassID: z.string().optional(),
   componentTypeName: z.string().optional(),
   requiresManualReview: z.boolean().optional(),
+  executionColumnInventory: executionColumnInventorySchema.optional(),
 });
 
 export type DataFlowComponent = z.infer<typeof dataFlowComponentSchema>;
@@ -360,6 +398,7 @@ export const parsedPackageSchema = z.object({
   containers: z.array(containerSchema).optional(),
   packageReferencedTables: z.array(tableReferenceSchema).optional(),
   packageReferencedTablesDetailed: z.array(packageReferencedTableDetailSchema).optional(),
+  dataFlowColumnInventory: dataFlowColumnInventorySchema.optional(),
 });
 
 export type ParsedPackage = z.infer<typeof parsedPackageSchema>;
