@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { Upload, Search, Database, Code, GitBranch, FileText, PlayCircle, ArrowLeft, FileCode, Download, Cloud, AlertTriangle, CheckCircle2, XCircle, Loader2, Lock, Clock, ArrowRight, Layers, FileDown, Copy } from "lucide-react";
+import { Upload, Search, Database, Code, GitBranch, FileText, PlayCircle, ArrowLeft, FileCode, Download, Cloud, AlertTriangle, CheckCircle2, XCircle, Loader2, Lock, Clock, ArrowRight, Layers, FileDown, Copy, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -13,6 +13,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import type { ParsedPackage, Activity, MappingTrace, ConversionSummary } from "@shared/schema";
 
 export default function WorkflowAnalyzer() {
@@ -476,25 +477,116 @@ export default function WorkflowAnalyzer() {
     activity.type.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
-  const getActivityIcon = (type: string) => {
-    if (type.includes('Pipeline') || type.includes('DataFlow')) {
-      return <GitBranch className="w-4 h-4" />;
-    } else if (type.includes('SQL')) {
-      return <Database className="w-4 h-4" />;
-    } else if (type.includes('Script')) {
-      return <Code className="w-4 h-4" />;
-    } else if (type.includes('Execute Package') || type.includes('PackageTask')) {
-      return <Layers className="w-4 h-4" />;
+  /** Aligns with api_server.parse_activities: type is often a friendly label (e.g. "Data Flow Task"), not a CLR name. */
+  type ActivityVisualKind =
+    | 'dataFlow'
+    | 'executeSql'
+    | 'script'
+    | 'executePackage'
+    | 'sequence'
+    | 'other';
+
+  const getActivityVisualKind = (activity: Activity): ActivityVisualKind => {
+    const t = activity.type || '';
+    const e = activity.executableType || '';
+    if (
+      t.includes('Pipeline') ||
+      t.includes('DataFlow') ||
+      /\bData Flow\b/i.test(t) ||
+      e.includes('Pipeline')
+    ) {
+      return 'dataFlow';
     }
-    return <PlayCircle className="w-4 h-4" />;
+    if (t.includes('SQL') || e.includes('SQL')) {
+      return 'executeSql';
+    }
+    if (t.includes('Execute Package') || t.includes('PackageTask') || e.includes('ExecutePackageTask')) {
+      return 'executePackage';
+    }
+    if (t.includes('Sequence') || e.includes('SEQUENCE') || t.toUpperCase().includes('STOCK:SEQUENCE')) {
+      return 'sequence';
+    }
+    if (t.includes('Script') || e.includes('Script')) {
+      return 'script';
+    }
+    return 'other';
   };
 
-  const getActivityTypeName = (type: string) => {
-    if (type.includes('Pipeline')) return 'Data Flow Task';
-    if (type.includes('SQL')) return 'Execute SQL Task';
-    if (type.includes('Script')) return 'Script Task';
-    if (type.includes('Execute Package') || type.includes('PackageTask')) return 'Execute Package Task';
-    return type.split('.').pop() || type;
+  const getActivityTypeStyles = (activity: Activity) => {
+    const kind = getActivityVisualKind(activity);
+    const byKind: Record<ActivityVisualKind, { icon: string; title: string; badge: string; inset: string }> = {
+      dataFlow: {
+        icon: 'text-red-600 dark:text-red-400',
+        title: 'text-red-950 dark:text-red-100',
+        badge: 'border-red-500/35 bg-red-500/10 text-red-800 dark:text-red-200',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(220_38_38)] dark:shadow-[inset_3px_0_0_0_rgb(248_113_113)]',
+      },
+      executeSql: {
+        icon: 'text-sky-600 dark:text-sky-400',
+        title: 'text-sky-950 dark:text-sky-100',
+        badge: 'border-sky-500/35 bg-sky-500/10 text-sky-800 dark:text-sky-200',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(2_132_199)] dark:shadow-[inset_3px_0_0_0_rgb(56_189_248)]',
+      },
+      script: {
+        icon: 'text-violet-600 dark:text-violet-400',
+        title: 'text-violet-950 dark:text-violet-100',
+        badge: 'border-violet-500/35 bg-violet-500/10 text-violet-800 dark:text-violet-200',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(124_58_237)] dark:shadow-[inset_3px_0_0_0_rgb(167_139_250)]',
+      },
+      executePackage: {
+        icon: 'text-emerald-600 dark:text-emerald-400',
+        title: 'text-emerald-950 dark:text-emerald-100',
+        badge: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(5_150_105)] dark:shadow-[inset_3px_0_0_0_rgb(52_211_153)]',
+      },
+      sequence: {
+        icon: 'text-indigo-600 dark:text-indigo-400',
+        title: 'text-indigo-950 dark:text-indigo-100',
+        badge: 'border-indigo-500/35 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(79_70_229)] dark:shadow-[inset_3px_0_0_0_rgb(129_140_248)]',
+      },
+      other: {
+        icon: 'text-amber-600 dark:text-amber-500',
+        title: 'text-foreground',
+        badge: 'border-border bg-muted/80 text-muted-foreground',
+        inset:
+          'shadow-[inset_3px_0_0_0_rgb(148_163_184)] dark:shadow-[inset_3px_0_0_0_rgb(100_116_139)]',
+      },
+    };
+    return byKind[kind];
+  };
+
+  const getActivityIcon = (activity: Activity, iconClassName?: string) => {
+    const ic = cn('w-4 h-4 shrink-0', iconClassName);
+    switch (getActivityVisualKind(activity)) {
+      case 'dataFlow':
+        return <GitBranch className={ic} />;
+      case 'executeSql':
+        return <Database className={ic} />;
+      case 'script':
+        return <Code className={ic} />;
+      case 'executePackage':
+        return <Layers className={ic} />;
+      case 'sequence':
+        return <Folder className={ic} />;
+      default:
+        return <PlayCircle className={ic} />;
+    }
+  };
+
+  const getActivityTypeName = (activity: Activity) => {
+    const t = activity.type || '';
+    if (/\bData Flow\b/i.test(t) || t.includes('Pipeline')) return 'Data Flow Task';
+    if (t.includes('SQL')) return 'Execute SQL Task';
+    if (t.includes('Script')) return 'Script Task';
+    if (t.includes('Execute Package') || t.includes('PackageTask')) return 'Execute Package Task';
+    if (t.includes('Sequence')) return 'Sequence Container';
+    return t.split('.').pop() || t;
   };
 
   return (
@@ -588,26 +680,34 @@ export default function WorkflowAnalyzer() {
               {parsedData && (
                 <ScrollArea className="mt-4 flex-1 min-h-0">
                   <div className="space-y-2 pr-4">
-                    {filteredActivities.map((activity) => (
+                    {filteredActivities.map((activity) => {
+                      const typeStyles = getActivityTypeStyles(activity);
+                      const isSelected = selectedActivity?.id === activity.id;
+                      return (
                       <button
                         key={activity.id}
                         onClick={() => setSelectedActivity(activity)}
-                        className={`w-full text-left p-3 rounded-md border transition-colors ${
-                          selectedActivity?.id === activity.id
+                        className={cn(
+                          'w-full text-left p-3 rounded-md border transition-colors',
+                          typeStyles.inset,
+                          isSelected
                             ? 'bg-primary/10 border-primary'
-                            : 'bg-background border-border hover:bg-muted'
-                        }`}
+                            : 'bg-background border-border hover:bg-muted',
+                        )}
                         data-testid={`activity-${activity.id}`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          {getActivityIcon(activity.type)}
-                          <p className="text-sm font-semibold text-foreground">{activity.name}</p>
+                        <div className="flex items-center gap-2 mb-1 min-w-0">
+                          {getActivityIcon(activity, typeStyles.icon)}
+                          <p className={cn('text-sm font-semibold truncate', typeStyles.title)}>
+                            {activity.name}
+                          </p>
                         </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {getActivityTypeName(activity.type)}
+                        <Badge variant="outline" className={cn('text-xs font-medium', typeStyles.badge)}>
+                          {getActivityTypeName(activity)}
                         </Badge>
                       </button>
-                    ))}
+                    );
+                    })}
                   </div>
                 </ScrollArea>
               )}
